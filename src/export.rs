@@ -406,6 +406,7 @@ impl Handler<WatermarkUpdated> for ExportService {
                     .filter_map(|l| l.options.as_mut())
                     .chain(entry.tt_parsing.iter_mut().map(|o| &mut o.options))
                     .chain(entry.dt_parsing.iter_mut().map(|o| &mut o.options))
+                    .chain(entry.jgd_parsing.iter_mut().map(|o| &mut o.options))
                     .chain(entry.maxton_parsing.iter_mut().map(|o| &mut o.options))
                     .chain(entry.davi_parsing.iter_mut())
                     .filter_map(|o| o.watermarks.as_mut())
@@ -842,20 +843,27 @@ pub async fn do_export(
     }
     let (dt, tt, davi, res) = tokio::join!(
         async {
-            match (
+            let need_dt = entry.dt_parsing.is_some()
+                || entry.maxton_parsing.is_some()
+                || entry.jgd_parsing.is_some();
+            if !need_dt {
+                return Ok::<Option<Vec<dt::product::Product>>, anyhow::Error>(None);
+            }
+            let wants_all = [
                 entry.dt_parsing.as_ref().map(|x| x.options.only_available),
                 entry
                     .maxton_parsing
                     .as_ref()
                     .map(|x| x.options.only_available),
-            ) {
-                (Some(true), Some(true)) | (Some(true), None) | (None, Some(true)) => {
-                    Ok::<_, anyhow::Error>(Some(
-                        dt_repo.select(&dt::product::AvailableSelector).await?,
-                    ))
-                }
-                (Some(false), _) | (_, Some(false)) => Ok(Some(dt_repo.list().await?)),
-                (None, None) => Ok(None),
+                entry.jgd_parsing.as_ref().map(|x| x.options.only_available),
+            ]
+            .into_iter()
+            .flatten()
+            .any(|v| !v);
+            if wants_all {
+                Ok(Some(dt_repo.list().await?))
+            } else {
+                Ok(Some(dt_repo.select(&dt::product::AvailableSelector).await?))
             }
         },
         async {
@@ -1084,25 +1092,23 @@ pub async fn do_export(
             res.insert(options.options.clone(), dto);
         }
     }
-    let (maxton, dt): (Option<Vec<_>>, Option<Vec<_>>) = dt
+    let (maxton, jgd, dt): (Option<Vec<_>>, Option<Vec<_>>, Option<Vec<_>>) = dt
         .map(|dt| {
-            dt.into_iter().partition(|p| {
+            let (maxton, rest): (Vec<_>, Vec<_>) = dt.into_iter().partition(|p| {
                 p.article.ends_with("-M")
                     || p.title.to_lowercase().contains("maxton")
                     || p.description
                         .as_ref()
                         .is_some_and(|d| d.to_lowercase().contains("maxton"))
-            })
+            });
+            let (jgd, dt): (Vec<_>, Vec<_>) = rest
+                .into_iter()
+                .partition(|p| p.article.to_uppercase().starts_with("JGD"));
+            (Some(maxton), Some(jgd), Some(dt))
         })
-        .unzip();
+        .unwrap_or((None, None, None));
     if let Some((options, products)) = entry.dt_parsing.as_ref().zip(dt) {
-        let products = products.into_iter().map(|mut p| {
-            if p.article.contains("JGD") {
-                p.available = Availability::OnOrder;
-            }
-            p
-        });
-        let dto = rt_types::product::convert(products);
+        let dto = rt_types::product::convert(products.into_iter());
         let dto: Vec<_> = if options.options.categories {
             category::assign_categories(dto, &categories).collect()
         } else {
@@ -1127,8 +1133,55 @@ pub async fn do_export(
             res.insert(options.options.clone(), dto);
         }
     }
+    if let Some((options, products)) = entry.jgd_parsing.as_ref().zip(jgd) {
+        let products = products.into_iter().map(|mut p| {
+            p.available = Availability::OnOrder;
+            p
+        });
+        let dto = rt_types::product::convert(products);
+        let dto: Vec<_> = if options.options.categories {
+            category::assign_categories(dto, &categories).collect()
+        } else {
+            dto.collect()
+        };
+        let mut dto = match options.options.convert_to_uah {
+            true => dto
+                .into_iter()
+                .map(|mut i| {
+                    if let Some(rate) = rates.get(&i.currency) {
+                        i.currency = "UAH".to_string();
+                        i.price *= rate;
+                    }
+                    i
+                })
+                .collect(),
+            false => dto,
+        };
+        dto.iter_mut().for_each(ensure_bilingual);
+        if let Some(entry) = res.get_mut(&options.options) {
+            entry.append(&mut dto);
+        } else {
+            res.insert(options.options.clone(), dto);
+        }
+    }
     if let Some((options, products)) = entry.maxton_parsing.as_ref().zip(maxton) {
-        let dto = rt_types::product::convert(products.into_iter().map(dt::product::MaxtonProduct))
+        let mut skipped_t_suffix = 0usize;
+        let filtered: Vec<_> = products
+            .into_iter()
+            .filter(|p| {
+                let drop = p.article.ends_with('T');
+                if drop {
+                    skipped_t_suffix += 1;
+                }
+                !drop
+            })
+            .collect();
+        if skipped_t_suffix > 0 {
+            log::warn!(
+                "Maxton: skipped {skipped_t_suffix} items with trailing 'T' suffix (unsupported on supplier site)"
+            );
+        }
+        let dto = rt_types::product::convert(filtered.into_iter().map(dt::product::MaxtonProduct))
             .map(|mut p| {
                 p.available = Availability::OnOrder;
                 p

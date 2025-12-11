@@ -31,6 +31,12 @@
 			<button>Добавить парсинг Maxton</button>
 		</form>
 		{% endif %}
+		{% if let None = export.entry.jgd_parsing %}
+		<form action="/shop/{{shop.id}}/export_info/{{hash}}/add_jgd" 
+			  method="POST">
+			<button>Добавить парсинг JGD</button>
+		</form>
+		{% endif %}
 		{% if let None = export.entry.tt_parsing %}
 		<form action="/shop/{{shop.id}}/export_info/{{hash}}/add_tt" 
 			method="POST">
@@ -67,7 +73,7 @@
 			<button form="remove_dt" class="delete">Удалить</button>
 		</div>
 	</div>
-	{% endif %}
+{% endif %}
 	{% if let Some(opts) = export.entry.maxton_parsing %}
 	{% let opts = opts.options.borrow() %}
 	<div class="import group">
@@ -84,6 +90,25 @@
 		<div class="buttons">
 			<button form="save_maxton" class="save">Сохранить</button>
 			<button form="remove_maxton" class="delete">Удалить</button>
+		</div>
+	</div>
+	{% endif %}
+	{% if let Some(opts) = export.entry.jgd_parsing %}
+	{% let opts = opts.options.borrow() %}
+	<div class="import group">
+		<h2>Парсинг JGD</h2>
+		{% let link_hash = "jgd" -%}
+		<form id="save_jgd" 
+			  action="/shop/{{shop.id}}/export_info/{{hash}}/jgd" 
+			  method="POST">
+			{% include "all_features.html" %}
+		</form>
+		<form id="remove_jgd" 
+			  action="/shop/{{shop.id}}/export_info/{{hash}}/remove_jgd" 
+			  method="POST"></form>
+		<div class="controls">
+			<button form="save_jgd" class="save">Сохранить</button>
+			<button form="remove_jgd" class="delete">Удалить</button>
 		</div>
 	</div>
 	{% endif %}
