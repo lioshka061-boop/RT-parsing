@@ -111,13 +111,11 @@ pub async fn write_dto_map(
             let i: Vec<String> = i
                 .iter()
                 .map(|i| {
-                    i.description
-                        .clone()
-                        .or_else(|| {
-                            i.ua_translation
-                                .as_ref()
-                                .and_then(|t| t.description.clone())
-                        })
+                    i.description.clone().or_else(|| {
+                        i.ua_translation
+                            .as_ref()
+                            .and_then(|t| t.description.clone())
+                    })
                 })
                 .map(|d| match &description_options {
                     Some(DescriptionOptions::Replace(d)) => Some(d.clone()),

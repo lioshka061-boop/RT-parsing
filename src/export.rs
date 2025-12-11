@@ -8,7 +8,6 @@ use anyhow::anyhow;
 use anyhow::Context as AnyhowContext;
 use currency_service::{CurrencyService, ListRates};
 use derive_more::Display;
-use serde::Serialize;
 use futures::stream;
 use futures::{StreamExt, TryStreamExt};
 use itertools::Itertools;
@@ -27,6 +26,7 @@ use rt_types::subscription::service::UserSubscription;
 use rt_types::watermark::service::WatermarkUpdated;
 use rt_types::Availability;
 use rust_decimal_macros::dec;
+use serde::Serialize;
 use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
 use tokio::sync::Semaphore;
@@ -792,10 +792,11 @@ fn ensure_bilingual(p: &mut Product) {
         });
     }
 
-    let desc_ru = p
-        .description
-        .clone()
-        .or_else(|| p.ua_translation.as_ref().and_then(|t| t.description.clone()));
+    let desc_ru = p.description.clone().or_else(|| {
+        p.ua_translation
+            .as_ref()
+            .and_then(|t| t.description.clone())
+    });
     let desc_ua = p
         .ua_translation
         .as_ref()
