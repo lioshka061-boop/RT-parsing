@@ -97,6 +97,15 @@
 						</div>
 					</details>
 					{% endif %}
+					{% if let Some(opts) = e.dt_tt_parsing %}
+					{% let opts = opts.options.borrow() %}
+					<details>
+						<summary><h3>Парсинг DT-TT</h3></summary>
+						<div class="features">
+							{% include "opts_features.html" %}
+						</div>
+					</details>
+					{% endif %}
 					{% if let Some(opts) = e.tt_parsing %}
 					{% let opts = opts.options.borrow() %}
 					<details>

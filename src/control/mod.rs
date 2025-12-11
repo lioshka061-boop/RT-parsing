@@ -1370,6 +1370,23 @@ async fn add_export_skm(
     Ok(see_other(&format!("/shop/{shop_id}/export_info/{hash}")))
 }
 
+#[post("/shop/{shop_id}/export_info/{export_hash}/add_dt_tt")]
+async fn add_export_dt_tt(
+    path: Path<(IdentityOf<Shop>, String)>,
+    ShopAccess { .. }: ShopAccess,
+    export_entry: Record<Export>,
+) -> Response {
+    let (shop_id, _) = path.into_inner();
+    let hash = export_entry
+        .map(|export_entry| {
+            if export_entry.entry.dt_tt_parsing.is_none() {
+                export_entry.entry.dt_tt_parsing = Some(Default::default());
+            }
+        })
+        .await?;
+    Ok(see_other(&format!("/shop/{shop_id}/export_info/{hash}")))
+}
+
 #[post("/shop/{shop_id}/export_info/{export_hash}/add_jgd")]
 async fn add_export_jgd(
     path: Path<(IdentityOf<Shop>, String)>,
@@ -1476,6 +1493,21 @@ async fn remove_export_skm(
     let hash = export_entry
         .map(|export_entry| {
             export_entry.entry.skm_parsing = None;
+        })
+        .await?;
+    Ok(see_other(&format!("/shop/{shop_id}/export_info/{hash}")))
+}
+
+#[post("/shop/{shop_id}/export_info/{export_hash}/remove_dt_tt")]
+async fn remove_export_dt_tt(
+    path: Path<(IdentityOf<Shop>, String)>,
+    ShopAccess { .. }: ShopAccess,
+    export_entry: Record<Export>,
+) -> Response {
+    let (shop_id, _) = path.into_inner();
+    let hash = export_entry
+        .map(|export_entry| {
+            export_entry.entry.dt_tt_parsing = None;
         })
         .await?;
     Ok(see_other(&format!("/shop/{shop_id}/export_info/{hash}")))
@@ -1687,6 +1719,43 @@ async fn update_export_skm(
     let hash = export_entry
         .map(|entry| {
             entry.skm_parsing = Some(opts.into());
+        })
+        .await?;
+    Ok(see_other(&format!("/shop/{shop_id}/export_info/{hash}")))
+}
+
+#[post("/shop/{shop_id}/export_info/{export_hash}/dt_tt")]
+async fn update_export_dt_tt(
+    form: Form<ExportEntryDtDto>,
+    path: Path<(IdentityOf<Shop>, String)>,
+    ShopAccess { .. }: ShopAccess,
+    export_entry: Record<ExportEntry>,
+) -> Response {
+    let opts = form.into_inner();
+    let (shop_id, _) = path.into_inner();
+
+    let description = opts
+        .options
+        .description_path
+        .clone()
+        .zip(opts.options.description_action.as_ref())
+        .and_then(|(path, action)| DescriptionOptions::try_from(action, path));
+    if let Some(path) = &description {
+        check_description(shop_id, path.value()).await?;
+    }
+    let description_ua = opts
+        .options
+        .description_path_ua
+        .clone()
+        .zip(opts.options.description_action_ua.as_ref())
+        .and_then(|(path, action)| DescriptionOptions::try_from(action, path));
+    if let Some(path) = &description_ua {
+        check_description(shop_id, path.value()).await?;
+    }
+
+    let hash = export_entry
+        .map(|entry| {
+            entry.dt_tt_parsing = Some(opts.into());
         })
         .await?;
     Ok(see_other(&format!("/shop/{shop_id}/export_info/{hash}")))

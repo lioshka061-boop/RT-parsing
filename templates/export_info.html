@@ -19,48 +19,6 @@
 			</label>
 		</form>
 		<button form="update_entry">Сохранить</button>
-		{% if let None = export.entry.dt_parsing %}
-		<form action="/shop/{{shop.id}}/export_info/{{hash}}/add_dt" 
-			method="POST">
-			<button>Добавить парсинг DT</button>
-		</form>
-		{% endif %}
-		{% if let None = export.entry.maxton_parsing %}
-		<form action="/shop/{{shop.id}}/export_info/{{hash}}/add_maxton" 
-			  method="POST">
-			<button>Добавить парсинг Maxton</button>
-		</form>
-		{% endif %}
-		{% if let None = export.entry.pl_parsing %}
-		<form action="/shop/{{shop.id}}/export_info/{{hash}}/add_pl" 
-			  method="POST">
-			<button>Добавить парсинг Скловолокно PL</button>
-		</form>
-		{% endif %}
-		{% if let None = export.entry.skm_parsing %}
-		<form action="/shop/{{shop.id}}/export_info/{{hash}}/add_skm" 
-			  method="POST">
-			<button>Добавить парсинг SKM</button>
-		</form>
-		{% endif %}
-		{% if let None = export.entry.jgd_parsing %}
-		<form action="/shop/{{shop.id}}/export_info/{{hash}}/add_jgd" 
-			  method="POST">
-			<button>Добавить парсинг JGD</button>
-		</form>
-		{% endif %}
-		{% if let None = export.entry.tt_parsing %}
-		<form action="/shop/{{shop.id}}/export_info/{{hash}}/add_tt" 
-			method="POST">
-			<button>Добавить парсинг TT</button>
-		</form>
-		{% endif %}
-		{% if let None = export.entry.davi_parsing %}
-		<form action="/shop/{{shop.id}}/export_info/{{hash}}/add_davi" 
-			  method="POST">
-			<button>Добавить парсинг Davi</button>
-		</form>
-		{% endif %}
 		<div>
 			<a class="button" 
 			   href="/shop/{{shop.id}}/export_info/{{hash}}?with_new_link">
@@ -68,6 +26,37 @@
 			</a>
 		</div>
 	</header>
+	<div style="margin-top: 0.75rem; display: inline-block;">
+		<form id="add_parsing_form" method="POST">
+			<select id="add_parsing_select">
+				<option value="">Добавить парсинг…</option>
+				{% if let None = export.entry.dt_parsing %}
+				<option value="/shop/{{shop.id}}/export_info/{{hash}}/add_dt">DT</option>
+				{% endif %}
+				{% if let None = export.entry.maxton_parsing %}
+				<option value="/shop/{{shop.id}}/export_info/{{hash}}/add_maxton">Maxton</option>
+				{% endif %}
+				{% if let None = export.entry.pl_parsing %}
+				<option value="/shop/{{shop.id}}/export_info/{{hash}}/add_pl">Скловолокно PL</option>
+				{% endif %}
+				{% if let None = export.entry.skm_parsing %}
+				<option value="/shop/{{shop.id}}/export_info/{{hash}}/add_skm">SKM</option>
+				{% endif %}
+				{% if let None = export.entry.dt_tt_parsing %}
+				<option value="/shop/{{shop.id}}/export_info/{{hash}}/add_dt_tt">DT-TT</option>
+				{% endif %}
+				{% if let None = export.entry.jgd_parsing %}
+				<option value="/shop/{{shop.id}}/export_info/{{hash}}/add_jgd">JGD</option>
+				{% endif %}
+				{% if let None = export.entry.tt_parsing %}
+				<option value="/shop/{{shop.id}}/export_info/{{hash}}/add_tt">TT</option>
+				{% endif %}
+				{% if let None = export.entry.davi_parsing %}
+				<option value="/shop/{{shop.id}}/export_info/{{hash}}/add_davi">Davi</option>
+				{% endif %}
+			</select>
+		</form>
+	</div>
 	{% if let Some(opts) = export.entry.dt_parsing %}
 	{% let opts = opts.options.borrow() %}
 	<div class="import group">
@@ -159,6 +148,25 @@
 		<div class="controls">
 			<button form="save_skm" class="save">Сохранить</button>
 			<button form="remove_skm" class="delete">Удалить</button>
+		</div>
+	</div>
+	{% endif %}
+	{% if let Some(opts) = export.entry.dt_tt_parsing %}
+	{% let opts = opts.options.borrow() %}
+	<div class="import group">
+		<h2>Парсинг DT-TT</h2>
+		{% let link_hash = "dt_tt" -%}
+		<form id="save_dt_tt" 
+			  action="/shop/{{shop.id}}/export_info/{{hash}}/dt_tt" 
+			  method="POST">
+			{% include "all_features.html" %}
+		</form>
+		<form id="remove_dt_tt" 
+			  action="/shop/{{shop.id}}/export_info/{{hash}}/remove_dt_tt" 
+			  method="POST"></form>
+		<div class="controls">
+			<button form="save_dt_tt" class="save">Сохранить</button>
+			<button form="remove_dt_tt" class="delete">Удалить</button>
 		</div>
 	</div>
 	{% endif %}
@@ -310,4 +318,15 @@
 		</form>
 	</div>
 	{% endif %}
+	<script>
+	const select = document.getElementById('add_parsing_select');
+	const form = document.getElementById('add_parsing_form');
+	if (select && form) {
+		select.addEventListener('change', () => {
+			if (!select.value) return;
+			form.action = select.value;
+			form.submit();
+		});
+	}
+	</script>
 {% endblock %}

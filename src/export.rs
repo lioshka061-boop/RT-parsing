@@ -1626,6 +1626,7 @@ impl Handler<WatermarkUpdated> for ExportService {
                     .chain(entry.jgd_parsing.iter_mut().map(|o| &mut o.options))
                     .chain(entry.pl_parsing.iter_mut().map(|o| &mut o.options))
                     .chain(entry.skm_parsing.iter_mut().map(|o| &mut o.options))
+                    .chain(entry.dt_tt_parsing.iter_mut().map(|o| &mut o.options))
                     .chain(entry.maxton_parsing.iter_mut().map(|o| &mut o.options))
                     .chain(entry.davi_parsing.iter_mut())
                     .filter_map(|o| o.watermarks.as_mut())
@@ -2066,7 +2067,8 @@ pub async fn do_export(
                 || entry.maxton_parsing.is_some()
                 || entry.jgd_parsing.is_some()
                 || entry.pl_parsing.is_some()
-                || entry.skm_parsing.is_some();
+                || entry.skm_parsing.is_some()
+                || entry.dt_tt_parsing.is_some();
             if !need_dt {
                 return Ok::<Option<Vec<dt::product::Product>>, anyhow::Error>(None);
             }
@@ -2079,6 +2081,10 @@ pub async fn do_export(
                 entry.jgd_parsing.as_ref().map(|x| x.options.only_available),
                 entry.pl_parsing.as_ref().map(|x| x.options.only_available),
                 entry.skm_parsing.as_ref().map(|x| x.options.only_available),
+                entry
+                    .dt_tt_parsing
+                    .as_ref()
+                    .map(|x| x.options.only_available),
             ]
             .into_iter()
             .flatten()
@@ -2090,7 +2096,15 @@ pub async fn do_export(
             }
         },
         async {
-            match &entry.tt_parsing.as_ref().map(|x| x.options.only_available) {
+            let tt_only_available = entry
+                .tt_parsing
+                .as_ref()
+                .map(|x| x.options.only_available)
+                .or(entry
+                    .dt_tt_parsing
+                    .as_ref()
+                    .map(|x| x.options.only_available));
+            match &tt_only_available {
                 Some(true) => Ok::<_, anyhow::Error>(Some(
                     tt_repo.select(&tt::product::AvailableSelector).await?,
                 )),
@@ -2119,6 +2133,9 @@ pub async fn do_export(
         }
     );
     let (dt, tt, davi) = (dt?, tt?, davi?);
+    let dt_articles: Option<HashSet<String>> = dt
+        .as_ref()
+        .map(|list| list.iter().map(|p| p.article.to_uppercase()).collect());
     let (offers, items) = res?;
 
     let mut res: HashMap<ExportOptions, Vec<Product>, _> =
@@ -2140,6 +2157,22 @@ pub async fn do_export(
             .is_some_and(|opts| opts.options.categories)
         || entry
             .maxton_parsing
+            .as_ref()
+            .is_some_and(|opts| opts.options.categories)
+        || entry
+            .jgd_parsing
+            .as_ref()
+            .is_some_and(|opts| opts.options.categories)
+        || entry
+            .pl_parsing
+            .as_ref()
+            .is_some_and(|opts| opts.options.categories)
+        || entry
+            .skm_parsing
+            .as_ref()
+            .is_some_and(|opts| opts.options.categories)
+        || entry
+            .dt_tt_parsing
             .as_ref()
             .is_some_and(|opts| opts.options.categories)
         || entry
@@ -2289,6 +2322,7 @@ pub async fn do_export(
             .filter_map(|p| async { p.transpose() })
             .try_collect()
             .await?;
+        let products_for_dt_tt = products.clone();
         let dto = rt_types::product::convert(products.into_iter());
         let dto: Vec<_> = if options.options.categories {
             category::assign_categories(dto, &categories).collect()
@@ -2313,6 +2347,40 @@ pub async fn do_export(
             entry.append(&mut dto);
         } else {
             res.insert(options.options.clone(), dto);
+        }
+        if let Some((dt_tt_opts, dt_articles)) =
+            entry.dt_tt_parsing.as_ref().zip(dt_articles.as_ref())
+        {
+            let filtered: Vec<_> = products_for_dt_tt
+                .into_iter()
+                .filter(|p| p.available == Availability::Available)
+                .filter(|p| dt_articles.contains(&p.article.to_uppercase()))
+                .collect();
+            let dto = rt_types::product::convert(filtered.into_iter());
+            let dto: Vec<_> = if dt_tt_opts.options.categories {
+                category::assign_categories(dto, &categories).collect()
+            } else {
+                dto.collect()
+            };
+            let mut dto = match dt_tt_opts.options.convert_to_uah {
+                true => dto
+                    .into_iter()
+                    .map(|mut i| {
+                        if let Some(rate) = rates.get(&i.currency) {
+                            i.currency = "UAH".to_string();
+                            i.price *= rate;
+                        }
+                        i
+                    })
+                    .collect(),
+                false => dto,
+            };
+            dto.iter_mut().for_each(ensure_bilingual);
+            if let Some(entry) = res.get_mut(&dt_tt_opts.options) {
+                entry.append(&mut dto);
+            } else {
+                res.insert(dt_tt_opts.options.clone(), dto);
+            }
         }
     }
     let (maxton, jgd, pl, skm, dt): (
