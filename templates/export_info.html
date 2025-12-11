@@ -37,6 +37,12 @@
 			<button>Добавить парсинг Скловолокно PL</button>
 		</form>
 		{% endif %}
+		{% if let None = export.entry.skm_parsing %}
+		<form action="/shop/{{shop.id}}/export_info/{{hash}}/add_skm" 
+			  method="POST">
+			<button>Добавить парсинг SKM</button>
+		</form>
+		{% endif %}
 		{% if let None = export.entry.jgd_parsing %}
 		<form action="/shop/{{shop.id}}/export_info/{{hash}}/add_jgd" 
 			  method="POST">
@@ -134,6 +140,25 @@
 		<div class="controls">
 			<button form="save_pl" class="save">Сохранить</button>
 			<button form="remove_pl" class="delete">Удалить</button>
+		</div>
+	</div>
+	{% endif %}
+	{% if let Some(opts) = export.entry.skm_parsing %}
+	{% let opts = opts.options.borrow() %}
+	<div class="import group">
+		<h2>Парсинг SKM</h2>
+		{% let link_hash = "skm" -%}
+		<form id="save_skm" 
+			  action="/shop/{{shop.id}}/export_info/{{hash}}/skm" 
+			  method="POST">
+			{% include "all_features.html" %}
+		</form>
+		<form id="remove_skm" 
+			  action="/shop/{{shop.id}}/export_info/{{hash}}/remove_skm" 
+			  method="POST"></form>
+		<div class="controls">
+			<button form="save_skm" class="save">Сохранить</button>
+			<button form="remove_skm" class="delete">Удалить</button>
 		</div>
 	</div>
 	{% endif %}

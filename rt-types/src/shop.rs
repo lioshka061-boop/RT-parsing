@@ -105,6 +105,7 @@ impl Shop {
                     && e.dt_parsing.is_none()
                     && e.jgd_parsing.is_none()
                     && e.pl_parsing.is_none()
+                    && e.skm_parsing.is_none()
                     && e.update_rate >= limits.minimum_update_rate
                     && e.links
                         .as_ref()
@@ -131,6 +132,7 @@ pub struct ExportEntry {
     pub dt_parsing: Option<DtParsingOptions>,
     pub jgd_parsing: Option<DtParsingOptions>,
     pub pl_parsing: Option<DtParsingOptions>,
+    pub skm_parsing: Option<DtParsingOptions>,
     pub maxton_parsing: Option<DtParsingOptions>,
     pub davi_parsing: Option<ExportOptions>,
     #[serde(deserialize_with = "deserialize_duration_from_string")]
@@ -158,6 +160,10 @@ impl ExportEntry {
                 .is_some_and(|o| o.options.watermarks.iter().any(|(w, _)| w == watermark))
             || self
                 .pl_parsing
+                .as_ref()
+                .is_some_and(|o| o.options.watermarks.iter().any(|(w, _)| w == watermark))
+            || self
+                .skm_parsing
                 .as_ref()
                 .is_some_and(|o| o.options.watermarks.iter().any(|(w, _)| w == watermark))
             || self.links.iter().flatten().any(|l| {
@@ -227,6 +233,7 @@ impl Default for ExportEntry {
             davi_parsing: None,
             jgd_parsing: None,
             pl_parsing: None,
+            skm_parsing: None,
             maxton_parsing: None,
             update_rate: default_update_rate(),
         }
