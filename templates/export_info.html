@@ -31,6 +31,12 @@
 			<button>Добавить парсинг Maxton</button>
 		</form>
 		{% endif %}
+		{% if let None = export.entry.pl_parsing %}
+		<form action="/shop/{{shop.id}}/export_info/{{hash}}/add_pl" 
+			  method="POST">
+			<button>Добавить парсинг Скловолокно PL</button>
+		</form>
+		{% endif %}
 		{% if let None = export.entry.jgd_parsing %}
 		<form action="/shop/{{shop.id}}/export_info/{{hash}}/add_jgd" 
 			  method="POST">
@@ -109,6 +115,25 @@
 		<div class="controls">
 			<button form="save_jgd" class="save">Сохранить</button>
 			<button form="remove_jgd" class="delete">Удалить</button>
+		</div>
+	</div>
+	{% endif %}
+	{% if let Some(opts) = export.entry.pl_parsing %}
+	{% let opts = opts.options.borrow() %}
+	<div class="import group">
+		<h2>Парсинг Скловолокно PL</h2>
+		{% let link_hash = "pl" -%}
+		<form id="save_pl" 
+			  action="/shop/{{shop.id}}/export_info/{{hash}}/pl" 
+			  method="POST">
+			{% include "all_features.html" %}
+		</form>
+		<form id="remove_pl" 
+			  action="/shop/{{shop.id}}/export_info/{{hash}}/remove_pl" 
+			  method="POST"></form>
+		<div class="controls">
+			<button form="save_pl" class="save">Сохранить</button>
+			<button form="remove_pl" class="delete">Удалить</button>
 		</div>
 	</div>
 	{% endif %}

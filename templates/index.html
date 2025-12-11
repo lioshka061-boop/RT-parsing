@@ -79,6 +79,15 @@
 						</div>
 					</details>
 					{% endif %}
+					{% if let Some(opts) = e.pl_parsing %}
+					{% let opts = opts.options.borrow() %}
+					<details>
+						<summary><h3>Парсинг Скловолокно PL</h3></summary>
+						<div class="features">
+							{% include "opts_features.html" %}
+						</div>
+					</details>
+					{% endif %}
 					{% if let Some(opts) = e.tt_parsing %}
 					{% let opts = opts.options.borrow() %}
 					<details>
