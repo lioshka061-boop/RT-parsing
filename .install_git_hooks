@@ -1,0 +1,13 @@
+#!/bin/sh
+
+set -e
+set -x
+
+cd .githooks
+for i in *; do
+    rm -fv ../.git/hooks/"$i"
+    ln -svf ../../.githooks/"$i" ../.git/hooks/"$i" || ( echo "Failed to install $i hook" && exit 1)
+done
+
+exit 0
+

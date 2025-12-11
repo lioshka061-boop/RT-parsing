@@ -1,0 +1,15 @@
+[package]
+name = "currency-service"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+actix = "0.13"
+anyhow = "1.0"
+log = "0.4"
+once_cell = "1.19"
+reqwest = "0.12"
+rust_decimal = "1.36"
+scraper = "0.20"
+time = { version = "0.3", features = ["macros"] }
+tokio = { version = "1.40", features = ["sync", "fs"] }

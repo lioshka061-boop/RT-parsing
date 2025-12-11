@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block head %}
+<link rel="stylesheet" href="/static/register.css" />
+{% endblock %}
+{% block content %}
+<form action="/register" method="POST">
+	<label for="login">Логин</label>
+	<input id="login" type="text" name="login" required />
+	<label for="password">Пароль</label>
+	<input id="password" type="password" name="password" required />
+	<label for="token">Код регистрации</label>
+	<input id="token" type="text" name="token" required />
+	<button>Регистрация</button>
+</form>
+{% endblock %}

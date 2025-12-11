@@ -1,0 +1,28 @@
+{% extends "control_panel/base.html" %}
+{% block head %}
+{% let page = "parsing" %}
+<link rel="stylesheet" href="/static/parsing_product_info.css" />
+{% endblock %}
+{% block content %}
+<div>
+	<h2>Информация о товаре</h2>
+	<div class="info">
+		<span>Артикул</span>
+		<span>{{product.article}}</span>
+		<span>Название</span>
+		<span>{{product.title}}</span>
+		<span>Цена</span>
+		<span>
+			{% if let Some(price) = product.price %}
+			{{price}}UAH
+			{% endif %}
+		</span>
+		<span>Наличие</span>
+		<span>{{product.available}}</span>
+		<span>Последний обход</span>
+		<span>{{product.last_visited}}</span>
+		<span>Ссылка</span>
+		<span><a href="{{product.url.0}}">{{product.url.0}}</a></span>
+	</div>
+</div>
+{% endblock %}

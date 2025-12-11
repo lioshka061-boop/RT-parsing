@@ -1,0 +1,13 @@
+.subscription {
+	display: flex;
+	flex-flow: column;
+	align-items: flex-start;
+	grid-gap: 1em;
+}
+
+.subscription span {
+	display: grid;
+	grid-template-columns: auto auto;
+	width: fit-content;
+	grid-gap: .5em 2em;
+}

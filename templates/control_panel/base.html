@@ -1,0 +1,37 @@
+{% extends "../base.html" %}
+{% block nav %}
+<link rel="stylesheet" href="/static/nav.css" />
+<nav id="nav">
+	<div class="nav-title"></div>
+	<div class="entries">
+		<a href="/control_panel/" {% if page == "index" %}class="current"{% 
+		   endif %}>
+			<i class="ri-dashboard-3-line"></i>Система
+		</a>
+		<a href="/control_panel/users" {% if page == "users" 
+		   %}class="current"{% endif %}>
+			<i class="ri-user-line"></i>Пользователи
+		</a>
+		<a href="/control_panel/subscriptions" {% if page == "subscriptions" 
+		   %}class="current"{% endif %}>
+			<i class="ri-calendar-schedule-line"></i>Подписки
+		</a>
+		<a href="/control_panel/payments" {% if page == "payments" 
+		   %}class="current"{% endif %}>
+			<i class="ri-bank-card-line"></i>Оплаты
+		</a>
+		<a href="/control_panel/shops" {% if page == "shops" %}class="current" 
+		   {% endif %}>
+			<i class="ri-store-line"></i>Магазины
+		</a>
+		<a href="/control_panel/parsing" {% if page == "parsing" 
+		   %}class="current"{% endif %}>
+			<i class="ri-scan-2-line"></i>Парсинг
+		</a>
+		<a href="/control_panel/settings" {% if page == "settins"
+		   %}class="current"{% endif %}>
+			<i class="ri-settings-2-line"></i>Настройки
+		</a>
+	</div>
+</nav>
+{% endblock %}

@@ -1,0 +1,51 @@
+#content > header:first-of-type, .subscription > header:first-of-type {
+	display: flex;
+	align-items: center;
+	grid-gap: .25em;
+}
+
+.subscription form {
+	display: none;
+}
+
+.subscription > header:first-of-type {
+	margin-bottom: 1em;
+}
+
+#content > header:first-of-type .placeholder, .subscription > header:first-of-type .placeholder {
+	flex-grow: 1;
+}
+
+.subscriptions {
+	display: grid;
+	grid-template-columns: 1fr 1fr 1fr;
+	padding: .5em;
+	grid-gap: 1em;
+}
+
+.subscription {
+	display: flex;
+	flex-flow: column;
+	grid-gap: .25em;
+	border: 1px solid rgb(180,180,180);
+	padding: 1em;
+	border-radius: .2em;
+}
+
+.subscription h2 {
+	margin: 0;
+}
+
+.action-button {
+	color: black;
+	text-decoration: none;
+	background: white;
+	display: inline;
+	font-size: 1.1rem;
+}
+
+.action-button {
+	border: 1px solid rgb(180,180,180);
+	border-radius: .25em;
+	padding: .2em;
+}

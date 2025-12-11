@@ -1,0 +1,28 @@
+#content {
+	padding: 1em;
+}
+
+#content > header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 1em 0;
+}
+
+#content > header h2 {
+	margin: 0;
+}
+
+.shops {
+	display: flex;
+	grid-gap: 1em;
+}
+
+.shop {
+	border: 1px solid rgb(180,180,180);
+	padding: .75em 1em;
+	border-radius: .25em;
+	color: black;
+	text-decoration: none;
+	display: block;
+}

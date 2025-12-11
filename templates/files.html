@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block head %}
+{% let page = "export" %}
+<link rel="stylesheet" href="/static/files.css" />
+{% endblock %}
+{% block content %}
+<h1>{{directory}}</h1>
+<div class="files">
+<span>Файл</span><span>Последнее изменение</span><span>Размер</span>
+{% for e in files %}
+	<a href="/export/{{e.name}}">{{e.name}}</a> 
+	<span>{{e.last_modified}}</span> 
+	<span>{{e.format_size()}}</span> 
+{% endfor %} 
+</div>
+{% endblock %}

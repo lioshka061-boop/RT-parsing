@@ -1,0 +1,54 @@
+.menu summary {
+	margin: auto;
+}
+
+.menu {
+	position: relative;
+}
+
+.menu .content {
+	position: absolute;
+	top: 100%;
+	right: 0;
+	padding: .5em;
+	background: white;
+	border: 1px solid rgb(180,180,180);
+	border-radius: .25em;
+	display: flex;
+	flex-flow: column;
+	align-items: flex-end;
+	z-index: 10;
+}
+
+.menu .content a, .menu .content button {
+	white-space: nowrap;
+	color: black;
+	text-decoration: none;
+	background: none;
+	font-size: .8rem;
+}
+
+.menu .content .red {
+	color: red;
+}
+
+.menu .content form {
+	margin: 0;
+	display: flex;
+	flex-flow: column;
+	align-items: flex-end;
+	width: 100%;
+}
+
+.menu .content form button {
+	width: 100%;
+	margin: .2em 0;
+}
+
+.menu summary::-webkit-details-marker,
+.menu summary::marker {
+ display: none; 
+ content: "";
+}
+
+

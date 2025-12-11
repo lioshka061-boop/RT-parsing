@@ -1,0 +1,8 @@
+{% let login = Some(user.login) %}
+{% extends "me/base.html" %}
+{% block head %}
+{% let page = "me" %}
+{% endblock %}
+{% block content %}
+{{user.login}}
+{% endblock %}

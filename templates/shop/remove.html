@@ -1,0 +1,7 @@
+{% extends "shop/base.html" %}
+{% block content %}
+Вы уверены, что хотите удалить магазин {{shop.name}}?
+<form action="/shop/{{shop.id}}/remove" method="POST">
+	<button>Удалить</button>
+</form>
+{% endblock %}

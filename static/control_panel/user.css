@@ -1,0 +1,16 @@
+.user {
+	display: flex;
+	flex-flow: column;
+	align-items: flex-start;
+	grid-gap: 1em;
+}
+
+.subscription-details {
+	display: grid;
+	grid-template-columns: auto auto;
+	grid-gap: .25em 1em;
+}
+
+.subscription-details span:nth-child(odd) {
+	text-align: right;
+}

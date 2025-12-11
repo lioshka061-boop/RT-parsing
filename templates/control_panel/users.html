@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block head %}
+<link rel="stylesheet" href="/static/control_panel/users.css" />
+{% let page = "users" %}
+{% endblock %}
+{% block content %}
+<section>
+	<h2>Пользователи</h2>
+	<table class="users">
+		<tr>
+			<th>Логин</th>
+			<th>Подписка</th>
+			<th>Магазины</th>
+			<th>Код регистрации</th>
+			<th></th>
+		</tr>
+		{% for user in users %}
+		<tr>
+			<td>
+				{{user.login}}
+			</td>
+			<td>
+				{% if let Some((id, ver)) = user.subscription %}
+				{{id}}
+				{% endif %}
+			</td>
+			<td>
+				{% let shops = user.available_shops() %}
+				{% if shops.is_empty() %}
+				-
+				{% endif %}
+				{% for shop in shops %}
+					<a href="/control_panel/shops/{{shop}}">{{shop}}</a>
+				{% endfor %}
+			</td>
+			<td>
+				{% if let Some(token) = user.registration_token %}
+					{{token}}
+				{% else %}
+					-
+				{% endif %}
+			</td>
+			<td class="actions">
+				<a class="action" href="/control_panel/users/{{user.login}}/edit" 
+								  title="Редактировать">
+					<i class="ri-edit-box-line"></i>
+				</a>
+				<a class="action" href="/control_panel/users/{{user.login}}/ban" 
+								  title="Забанить пользователя">
+					<i class="ri-forbid-line"></i>
+				</a>
+			</td>
+		</tr>
+		{% endfor %}
+	</table>
+</section>
+<section>
+	<header>
+		<h2>Коды регистрации</h2>
+		<div class="placeholder"></div>
+		<a class="action" href="/control_panel/registration_token/generate"
+			title="Добавить">
+			<i class="ri-add-line"></i>
+		</a>
+	</header>
+	<div class="registration-codes">
+	{% for token in tokens %}
+	<span>{{token}}</span>
+	{% endfor %}
+</section>
+{% endblock %}

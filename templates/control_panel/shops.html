@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block head %}
+<link rel="stylesheet" href="/static/control_panel/shops.css" />
+<link rel="stylesheet" href="/static/menu.css" />
+{% let page = "shops" %}
+{% endblock %}
+{% block content %}
+<div class="shops">
+	{% for shop in shops %}
+	<form id="toggle_suspend_shop_{{shop.id}}" 
+		  action="/control_panel/shops/{{shop.id}}/suspend_toggle" 
+		  method="POST">
+	</form>
+	<a class="shop" href="/shop/{{shop.id}}">
+		<header>
+			<h2>
+				{% if shop.is_suspended %}
+				<i class="ri-indeterminate-circle-fill"></i>
+				{% endif %}
+				{{shop.name}}
+			</h2>
+			<div class="placeholder"></div>
+			<details class="menu">
+				<summary>
+					<i class="menu-button ri-more-2-line"></i>
+				</summary>
+				<div class="content">
+					<button form="toggle_suspend_shop_{{shop.id}}">
+						Приостановить работу
+					</button>
+				</div>
+			</details>
+		</header>
+		<footer>
+			<span>
+				 {{shop.export_entries.len()}}<i class="ri-import-line"></i>
+			</span>
+			<div class="placeholder"></div>
+			<span><i class="ri-user-line"></i>{{shop.owner}}</span>
+		</footer>
+	</a>
+	{% endfor %}
+</div>
+{% endblock %}

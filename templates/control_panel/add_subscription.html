@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block head %}
+{% let page = "subscriptions" %}
+<link rel="stylesheet" href="/static/control_panel/add_subscription.css" />
+{% endblock %}
+{% block content %}
+<h1>Добавить подписку</h1>
+<form action="/control_panel/subscriptions/add" method="POST" 
+												class="subscription">
+	<span>
+		<label>Название</label>
+		<input type="text" name="name" />
+		<label>Количество магазинов</label>
+		<input type="number" name="maximum_shops" />
+		<label>Стоимость (в месяц)</label>
+		<input type="number" name="price" />
+	</span>
+	<h2>Ограничения для магазинов</h2>
+	<span>
+		<label>Максимальное количество экспортов</label>
+		<input type="number" name="maximum_exports" />
+		<label>Количество ссылок на экспорт</label>
+		<input type="number" name="links_per_export" />
+		<label>Количество уникальных ссылок</label>
+		<input type="number" name="unique_links" />
+		<label>Описания</label>
+		<input type="number" name="descriptions" />
+		<label>Размер описаний</label>
+		<input type="number" name="maximum_description_size" />
+		<label>Категории</label>
+		<input type="number" name="categories" />
+		<label>Минимальная частота обновления</label>
+		<input type="number" name="minimum_update_rate" />
+	</span>
+	<button>Добавить</button>
+</form>
+{% endblock %}

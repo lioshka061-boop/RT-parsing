@@ -1,0 +1,50 @@
+{% extends "control_panel/base.html" %}
+{% block head %}
+{% let page = "parsing" %}
+<link rel="stylesheet" href="/static/parsing.css" />
+{% endblock %}
+{% block content %}
+<div>
+	<h1>Парсинг</h1>
+	<div class="list">
+		<h2>Парсинг DT</h2>
+		{% if let Ok(progress) = dt_progress %}
+		<span class="stage">{{progress.stage}}</span>
+		<span class="progress">{{progress.ready}} из {{progress.total}}</span>
+		{% endif %}
+		<form action="/resume_dt" method="POST">
+			<button>Старт</button>
+		</form>
+		<form action="/stop_dt" method="POST">
+			<button>Пауза</button>
+		</form>
+		<form action="/control_panel/dt/product_info" method="POST">
+			<label>
+				Артикул
+				<input type="text" name="article" />
+			</label>
+			<button>Информация о товаре</button>
+		</form>
+		<form action="/control_panel/dt/parse_page" method="POST">
+			<label>
+				Ссылка
+				<input type="text" name="link" />
+			</label>
+			<button>Парсинг страницы</button>
+		</form>
+		<form action="/control_panel/dt/parse" method="POST">
+			<label>
+				Ссылка
+				<input type="text" name="link" />
+			</label>
+			<button>Добавить в очередь</button>
+		</form>
+		<h2>Парсинг TT</h2>
+		{% if let Ok(progress) = tt_progress %}
+		<span class="stage">{{progress.stage}}</span>
+		<span class="progress">{{progress.ready}} из {{progress.total}}</span>
+		{% endif %}
+		<a href="/tt/overview" class="button">Управление</a>
+	</div>
+</div>
+{% endblock %}

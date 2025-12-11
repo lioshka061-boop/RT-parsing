@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block head %}
+<link rel="stylesheet" href="/static/control_panel/edit_subscription.css" />
+{% endblock %}
+{% block content %}
+<h1>Редактирование подписки</h1>
+<form 
+					   action="/control_panel/subscriptions/{{subscription.id}}/{{subscription.version}}/edit" 
+					   method="POST" class="subscription">
+	<input type="hidden" name="id" value="{{subscription.id}}" />
+	<span>
+		<label>Название</label>
+		<input type="text" value="{{subscription.name}}" name="name" />
+		<label>Версия</label>
+		<input type="text" value="{{subscription.version}}" disabled />
+		<label>Количество магазинов</label>
+		<input type="number" value="{{subscription.maximum_shops}}" 
+							 name="maximum_shops" />
+		<label>Стоимость (в месяц)</label>
+		<input type="number" value="{{subscription.price}}" name="price" />
+	</span>
+	<h2>Ограничения для магазинов</h2>
+	<span>
+		<label>Максимальное количество экспортов</label>
+		<input type="number" value="{{subscription.limits.maximum_exports}}" 
+							 name="maximum_exports" />
+		<label>Количество ссылок на экспорт</label>
+		<input type="number" value="{{subscription.limits.links_per_export}}" 
+							 name="links_per_export" />
+		<label>Количество уникальных ссылок</label>
+		<input type="number" value="{{subscription.limits.unique_links}}" 
+							 name="unique_links" />
+		<label>Описания</label>
+		<input type="number" 
+			   value="{{subscription.limits.descriptions.map(NonZero::get).unwrap_or_default()}}" 
+			   name="descriptions" />
+		<label>Размер описаний</label>
+		<input type="number" 
+			   value="{{subscription.limits.maximum_description_size}}" 
+			   name="maximum_description_size" />
+		<label>Категории</label>
+		<input type="number"
+			   value="{{subscription.limits.categories.map(NonZero::get).unwrap_or_default()}}"
+			   name="categories" />
+		<label>Минимальная частота обновления</label>
+		<input
+			   value="{{crate::format_duration(subscription.limits.minimum_update_rate)}}"
+			   name="minimum_update_rate" />
+	</span>
+
+	<button>Сохранить</button>
+</form>
+{% endblock %}

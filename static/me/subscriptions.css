@@ -1,0 +1,35 @@
+.subscription > header:first-of-type {
+	margin-bottom: 1em;
+}
+
+.subscription > header:first-of-type .placeholder {
+	width: 100%;
+}
+
+.subscriptions {
+	display: grid;
+	grid-template-columns: 1fr 1fr 1fr;
+	padding: .5em;
+	grid-gap: 1em;
+}
+
+.subscription {
+	display: flex;
+	flex-flow: column;
+	grid-gap: .25em;
+	border: 1px solid rgb(180,180,180);
+	padding: 1em;
+	border-radius: .2em;
+}
+
+.subscription h2 {
+	margin: 0;
+}
+
+.subscriptions input[type=radio] {
+	display: none;
+}
+
+.subscriptions input[type=radio]:checked + .subscription {
+	border: 1px solid green;
+}

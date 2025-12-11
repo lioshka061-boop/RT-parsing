@@ -1,0 +1,22 @@
+{% extends "me/base.html" %}
+{% block head %}
+{% let page = "shops" %}
+<link rel="stylesheet" href="/static/shops.css" />
+{% endblock %}
+{% block content %}
+<header>
+	<h2>Список магазинов</h2>
+	<form action="/shop/add" method="GET">
+		{% if create_permission.is_some() %}
+		<button>Новый магазин</button>
+		{% else %}
+		<button disabled>Новый магазин</button>
+		{% endif %}
+	</form>
+</header>
+<div class="shops">
+	{% for shop in shops %}
+	<a class="shop" href="/shop/{{shop.id}}">{{shop.name}}</a>
+	{% endfor %}
+</div>
+{% endblock %}

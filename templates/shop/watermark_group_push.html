@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block head %}
+{% endblock %}
+{% block content %}
+<h2>Добавить водяной знак в группу</h2>
+<form action="/shop/{{shop.id}}/watermark/group/{{group.id().0}}/push" 
+	  method="POST">
+	<select name="watermark">
+		{% for w in watermarks %}
+		{% if !group.contains_element(w.deref()) %}
+		<option>{{w}}</option>
+		{% endif %}
+		{% endfor %}
+	</select>
+	<input type="hidden" name="preserve" value="true" />
+	<input type="hidden" name="horizontal_position" value="end" />
+	<input type="hidden" name="vertical_posititon" value="end" />
+	<input type="hidden" name="width_percent" value="10" />
+	<input type="hidden" name="height_percent" value="10" />
+	<button>Добавить</button>
+</form>
+{% endblock %}

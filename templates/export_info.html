@@ -1,0 +1,238 @@
+{% extends "shop/base.html" %}
+{% block head %}
+<link rel="stylesheet" href="/static/export_info.css" />
+<link rel="stylesheet" href="/static/style.css" />
+{% endblock %}
+{% block content %}
+	<header>
+		<form id="update_entry" action="/shop/{{shop.id}}/export_info/{{hash}}" 
+								method="POST">
+			<label id="file_name">
+				Название&nbsp;файла
+				<input id="file_name" type="text" name="file_name" {% if let 
+				Some(n) = export.entry.file_name %}value="{{n}}"{%endif%} />
+			</label>
+			<label for="update_rate">
+				Частота&nbsp;обновления&nbsp;(ч.)
+				<input id="update_rate" type="number" name="update_rate" 
+				value="{{export.entry.update_rate.as_secs() / 60 / 60}}"/>
+			</label>
+		</form>
+		<button form="update_entry">Сохранить</button>
+		{% if let None = export.entry.dt_parsing %}
+		<form action="/shop/{{shop.id}}/export_info/{{hash}}/add_dt" 
+			method="POST">
+			<button>Добавить парсинг DT</button>
+		</form>
+		{% endif %}
+		{% if let None = export.entry.maxton_parsing %}
+		<form action="/shop/{{shop.id}}/export_info/{{hash}}/add_maxton" 
+			  method="POST">
+			<button>Добавить парсинг Maxton</button>
+		</form>
+		{% endif %}
+		{% if let None = export.entry.tt_parsing %}
+		<form action="/shop/{{shop.id}}/export_info/{{hash}}/add_tt" 
+			method="POST">
+			<button>Добавить парсинг TT</button>
+		</form>
+		{% endif %}
+		{% if let None = export.entry.davi_parsing %}
+		<form action="/shop/{{shop.id}}/export_info/{{hash}}/add_davi" 
+			  method="POST">
+			<button>Добавить парсинг Davi</button>
+		</form>
+		{% endif %}
+		<div>
+			<a class="button" 
+			   href="/shop/{{shop.id}}/export_info/{{hash}}?with_new_link">
+				Добавить поставщика
+			</a>
+		</div>
+	</header>
+	{% if let Some(opts) = export.entry.dt_parsing %}
+	{% let opts = opts.options.borrow() %}
+	<div class="import group">
+		<h2>Парсинг DT</h2>
+		{% let link_hash = "dt" -%}
+		<form id="save_dt" action="/shop/{{shop.id}}/export_info/{{hash}}/dt" 
+						   method="POST">
+			{% include "all_features.html" %}
+		</form>
+		<form id="remove_dt" 
+			  action="/shop/{{shop.id}}/export_info/{{hash}}/remove_dt" 
+			  method="POST"></form>
+		<div class="buttons">
+			<button form="save_dt" class="save">Сохранить</button>
+			<button form="remove_dt" class="delete">Удалить</button>
+		</div>
+	</div>
+	{% endif %}
+	{% if let Some(opts) = export.entry.maxton_parsing %}
+	{% let opts = opts.options.borrow() %}
+	<div class="import group">
+		<h2>Парсинг Maxton</h2>
+		{% let link_hash = "maxton" -%}
+		<form id="save_maxton" 
+			  action="/shop/{{shop.id}}/export_info/{{hash}}/maxton" 
+			  method="POST">
+			{% include "all_features.html" %}
+		</form>
+		<form id="remove_maxton" 
+			  action="/shop/{{shop.id}}/export_info/{{hash}}/remove_maxton" 
+			  method="POST"></form>
+		<div class="buttons">
+			<button form="save_maxton" class="save">Сохранить</button>
+			<button form="remove_maxton" class="delete">Удалить</button>
+		</div>
+	</div>
+	{% endif %}
+	{% if let Some(opts) = export.entry.tt_parsing %}
+	{% let categories = opts.append_categories.borrow() %}
+	{% let opts = opts.options.borrow() %}
+	<div class="import group">
+		<h2>Парсинг TT</h2>
+		{% let link_hash = "tt" -%}
+		<form id="save_tt" action="/shop/{{shop.id}}/export_info/{{hash}}/tt" 
+						   method="POST">
+			{% include "all_features.html" %}
+			<h3>Категории</h3>
+			<div class="group">
+				<input type="radio" class="disable" 
+									id="categories_none_{{link_hash}}" 
+									name="append_categories" value="" />
+				<label for="categories_none_{{link_hash}}">
+					Не добавлять
+				</label>
+				<input id="categories_before_{{link_hash}}" type="radio" 
+															name="append_categories" 
+															value="before_title"
+															{% if let 
+															Some(ParsingCategoriesAction::BeforeTitle 
+															{ separator } ) = 
+															categories 
+															%}checked{% endif 
+															%} />
+				<label for="categories_before_{{link_hash}}">
+					Перед названием
+				</label>
+				<input id="categories_after_{{link_hash}}" type="radio" 
+														   name="append_categories" 
+														   value="after_title" 
+														   {% if let 
+														   Some(ParsingCategoriesAction::AfterTitle 
+														   { separator }
+														   ) = categories 
+														   %}checked{% endif 
+														   %}/>
+				<label for="categories_after_{{link_hash}}">
+					После названия
+				</label>
+				<div class="checkbox-group">
+					<label>
+						Разделитель
+						<input type="text" name="categories_separator" 
+										   value="{% match categories %}
+												  {% when Some with 
+												  (ParsingCategoriesAction::BeforeTitle 
+												  { separator })%}{{separator}}
+												  {% when Some with
+												  (ParsingCategoriesAction::AfterTitle 
+												  { separator })%}
+												  {{separator}}
+												  {% when None %}
+												  {% endmatch %}"
+						/>
+					</label>
+				</div>
+			</div>
+		</form>
+		<form id="remove_tt" 
+			  action="/shop/{{shop.id}}/export_info/{{hash}}/remove_tt" 
+			  method="POST"></form>
+		<div class="buttons">
+			<button form="save_tt" class="save">Сохранить</button>
+			<button form="remove_tt" class="delete">Удалить</button>
+		</div>
+	</div>
+	{% endif %}
+	{% if let Some(opts) = export.entry.davi_parsing %}
+	{% let opts = opts.borrow() %}
+	<div class="import group">
+		<h2>Парсинг Davi</h2>
+		{% let link_hash = "davi" -%}
+		<form id="save_davi" 
+			  action="/shop/{{shop.id}}/export_info/{{hash}}/davi" 
+			  method="POST">
+			{% include "all_features.html" %}
+		</form>
+		<form id="remove_davi" 
+			  action="/shop/{{shop.id}}/export_info/{{hash}}/remove_davi" 
+			  method="POST"></form>
+		<div class="buttons">
+			<button form="save_davi" class="save">Сохранить</button>
+			<button form="remove_davi" class="delete">Удалить</button>
+		</div>
+	</div>
+	{% endif %}
+	{% if let Some(links) = export.entry.links %}
+	{% for (i, l) in links.iter().enumerate() %}
+	{% let link_hash = l.hash_with_index(i.into()) -%}
+	<div class="import group">
+		<form id="update_{{link_hash}}"
+			  action="/shop/{{shop.id}}/export_info/{{hash}}/{{link_hash}}" 
+			  method="POST">
+			<h2>{{ l.vendor_name() }}</h2>
+			<div class="group">
+				<label for="vendor_name">Название поставщика</label>
+				<input id="vendor_name" type="text" name="vendor_name" {%if let 
+													Some(vendor) = l.vendor_name 
+													%}value="{{vendor}}"{% endif %}
+													placeholder=
+													"{{crate::control::parse_vendor(l.link)}} (сгенерировано автоматически)"
+													>
+				<div class="placeholder"></div>
+			</div>
+			{% if let Some(opts) = l.options %}
+			{% include "all_features.html" %}
+			{% endif %}
+			<div class="group">
+				<label for="link">Ссылка</label>
+				<textarea id="link" name="link">{{l.link}}</textarea>
+			</div>
+		</form>
+		<form id="remove_{{link_hash}}"
+			  action="/shop/{{shop.id}}/export_info/{{hash}}/{{link_hash}}/remove"
+		method="POST"></form>
+		<div class="buttons">
+			<button class="save" form="update_{{link_hash}}">Сохранить</button>
+			<button class="delete" form="remove_{{link_hash}}">Удалить</button>
+		</div>
+	</div>
+	{% endfor %}
+	{% endif %}
+	{% if with_new_link %}
+	{% let link_hash = "new" -%}
+	<div class="import group">
+		<form id="update_{{link_hash}}"
+			  action="/shop/{{shop.id}}/export_info/{{hash}}/{{link_hash}}" 
+			  method="POST">
+			<h2>Новый поставщик</h2>
+			<div class="group">
+				<label for="vendor_name">Название поставщика</label>
+				<input id="vendor_name" type="text" name="vendor_name">
+				<div class="placeholder"></div>
+			</div>
+			{% let opts = ExportOptions::default() -%}
+			{% include "all_features.html" %}
+			<div class="group">
+				<label for="link">Ссылка</label>
+				<textarea id="link" required name="link"></textarea>
+			</div>
+			<div class="buttons">
+				<button class="save">Сохранить</button>
+			</div>
+		</form>
+	</div>
+	{% endif %}
+{% endblock %}

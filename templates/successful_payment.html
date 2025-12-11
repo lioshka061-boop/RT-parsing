@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block head %}
+<link rel="stylesheet" href="/static/successful_payment.html" />
+{% endblock %}
+{% block content %}
+{% if let TransactionStatus::Approved = status %}
+<h1>Ваша подписка активирована</h1>
+<a class="button" href="/me/subscription">Перейти к управлению подпиской</a>
+{% else if let TransactionStatus::Declined = status %}
+<h1>Платеж не прошел</h1>
+<span>{{reason.clone().unwrap_or_default()}}</span>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,218 @@
+{% extends "base.html" %}
+{% block head %}
+{% let page = "watermark" %}
+<link rel="stylesheet" href="/static/shop/watermark.css" />
+<link rel="stylesheet" href="/static/menu.css" />
+{% endblock %}
+{% block content %}
+<h2>Прокси для изображений</h2>
+<form action="/shop/{{shop.id}}/watermark" method="POST" 
+										   enctype="multipart/form-data">
+	<label>
+		Файл
+		<input type="file" name="file" required />
+	</label>
+	<button>Добавить</button>
+</form>
+<div class="watermarks">
+	{% for img in images %}
+	<div class="watermark">
+		<div class="image-wrapper">
+			<img src="/shop/{{shop.id}}/watermark/{{img.name}}" />
+			<details class="menu">
+				<summary><i class="menu-button ri-more-2-fill"></i></summary>
+				<div class="content">
+					<button form="{{img.name}}_generate">
+						Сгенерировать ссылку
+					</button>
+					<button form="{{img.name}}_download">Скачать</button>
+					<button class="red" 
+							form="{{img.name}}_delete">Удалить</button>
+					<form id="{{img.name}}_generate"
+						  action="/shop/{{shop.id}}/watermark/{{img.name}}/generate"
+						  method="GET">
+					</form>
+					<form id="{{img.name}}_download"
+						  action="/shop/{{shop.id}}/watermark/{{img.name}}"
+						  method="GET">
+					</form>
+					<form id="{{img.name}}_delete"
+					 action="/shop/{{shop.id}}/watermark/{{img.name}}/delete" 
+					 method="POST">
+					</form>
+				</div>
+			</details>
+		</div>
+		<form class="name" action="/shop/{{shop.id}}/watermark/{{img.name}}" 
+						   method="POST">
+			<input type="text" name="name" value="{{img.name}}" />
+			<button><i class="ri-save-3-fill"></i></button>
+		</form>
+	</div>
+	{% endfor %}
+</div>
+<div class="groups">
+	<header>
+		<h3>Группы водяных знаков</h3>
+		<details class="menu">
+			<summary><i class="ri-add-line"></i></summary>
+			<div class="content">
+				<form action="/shop/{{shop.id}}/watermark/group/add" method="POST">
+					<label>
+						Название
+						<input type="text" name="name" />
+					</label>
+					<button>Добавить</button>
+				</form>
+			</div>
+		</details>
+	</header>
+	{% for group in groups %}
+	<div class="group">
+		<header>
+			<h4>{{group.name}}</h4>
+			<div class="placeholder"></div>
+			<details class="menu preview">
+				<summary>
+					<i class="ri-image-fill"></i>
+				</summary>
+				<div class="content">
+					<img loading="lazy" 
+						 src="/shop/{{shop.id}}/watermark/{{group.id().0}}/preview" 
+						 />
+				</div>
+			</details>
+			<details class="menu">
+				<summary><i class="menu-button ri-more-2-fill"></i></summary>
+				<div class="content">
+					<form 
+					 action="/shop/{{shop.id}}/watermark/group/{{group.id().0}}/push"
+					 method="GET">
+						<button>
+							Добавить водяной знак
+						</button>
+					</form>
+					<button form="{{group.id().0}}_generate">
+						Сгенерировать ссылку
+					</button>
+					<form id="{{group.id().0}}_generate"
+						  action="/shop/{{shop.id}}/watermark/{{group.id().0}}/generate"
+						  method="GET">
+					</form>
+					<form 
+						  action="/shop/{{shop.id}}/watermark/group/{{group.id().0}}/remove" 
+						  method="POST">
+						<button class="red">Удалить</button>
+					</form>
+				</div>
+			</details>
+		</header>
+		<div class="elements">
+			{% for (name, elem) in group.elements.iter().sorted() %}
+			<div class="element">
+				<div class="image-wrapper">
+					<img src="/shop/{{shop.id}}/watermark/{{name}}" />
+					<details class="menu">
+						<summary><i class="menu-button 
+										   ri-equalizer-2-fill"></i></summary>
+						<div class="content">
+							<form 
+							 action="/shop/{{shop.id}}/watermark/group/{{group.id().0}}/edit/{{name}}"
+								 method="POST">
+								<label>
+									По&nbsp;горизонтали
+									<select name="horizontal_position">
+										<option value="start" {% if let 
+												WatermarkPosition::Start = 
+												elem.horizontal_position 
+												%}selected{%endif%}>
+											Слева
+										</option>
+										<option value="center" {% if let 
+												WatermarkPosition::Center = 
+												elem.horizontal_position 
+												%}selected{%endif%}>
+											По центру
+										</option>
+										<option value="end" {% if let 
+												WatermarkPosition::End = 
+												elem.horizontal_position 
+												%}selected{%endif%}>
+											Справа
+										</option>
+									</select>
+								</label>
+								<label>
+									По&nbsp;вертикали
+									<select name="vertical_position">
+										<option value="start" {% if let 
+												WatermarkPosition::Start = 
+												elem.vertical_position 
+												%}selected 
+												{%endif%}>
+											Сверху
+										</option>
+										<option value="center" {% if let 
+												WatermarkPosition::Center = 
+												elem.vertical_position 
+												%}selected{%endif%}>
+											По центру
+										</option>
+										<option value="end" {% if let 
+												WatermarkPosition::End = 
+												elem.vertical_position%}selected{%endif%}>
+											Снизу
+										</option>
+									</select>
+								</label>
+								<label>
+									Ширина&nbsp;(%)
+									<input type="number" name="width_percent" min="0" 
+																			  max="100" 
+																			  {% 
+																			  if 
+																			  let 
+																			  WatermarkSize::Width(w) 
+																			  = 
+																			  elem.size
+																			  %}
+																			  value="{{w}}" 
+																			  {% 
+																			  endif 
+																			  %}
+																			  />
+								</label>
+								<label>
+									Высота&nbsp;(%)
+									<input type="number" name="height_percent" min="0" 
+																			   max="100" 
+																			   {% if 
+																			   let 
+																			   WatermarkSize::Height(h)
+																			   = 
+																			   elem.size
+																			   %}
+																			   value="{{h}}" 
+																			   {% 
+																			   endif 
+																			   %}
+																			   />
+								</label>
+								<button>Сохранить</button>
+							</form>
+							<form 
+								action="/shop/{{shop.id}}/watermark/group/{{group.id().0}}/remove/{{name}}" 
+								method="POST">
+								<button>Удалить</button>
+							</form>
+						</div>
+					</details>
+				</div>
+				<span>{{name}}</span>
+			</div>
+			{% endfor %}
+		</div>
+	</div>
+	{% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,61 @@
+{% let page = "" %}
+<html>
+	<head>
+		<link rel="stylesheet" href="/static/style.css" />
+		<link rel="stylesheet" href="/static/remixicon.css" />
+		{% block head %}{% endblock %}
+	</head>
+	<body>
+		{% block nav %}{% endblock %}
+		<div>
+			{% block header %}
+			{% let user = crate::control::into_user_option(user) %}
+			<header id="header">
+				{% if let Some(user) = user %}
+				<a href="/shops">Мои магазины</a>
+				{% if user.has_access_to_control_panel() %}
+				<a href="/control_panel">Панель управления</a>
+				{% endif %}
+				{% endif %}
+				<div class="placeholder"></div>
+				<button id="theme-toggle" type="button" aria-label="Перемикач теми">
+					<i class="ri-moon-line"></i>
+					<span>Тема</span>
+				</button>
+				{% if let Some(creds) = user %}
+				<a href="/me">{{creds.login}}<i class="ri-user-line"></i></a>
+				{% else %}
+				<a href="/register">Регистрация</a>
+				<a href="/login">Войти</a>
+				{% endif %}
+			</header>
+			{% endblock %}
+			<div id="content">
+				{% block content %}{% endblock %}
+			</div>
+		</div>
+		<script>
+			(() => {
+				const body = document.body;
+				const key = "rt-theme";
+				const icon = () => document.querySelector("#theme-toggle i");
+				const apply = (t) => {
+					body.dataset.theme = t;
+					const i = icon();
+					if (i) {
+						i.className = t === "dark" ? "ri-sun-line" : "ri-moon-line";
+					}
+				};
+				const saved = localStorage.getItem(key);
+				const initial = saved || "dark";
+				apply(initial);
+				const toggle = document.getElementById("theme-toggle");
+				toggle?.addEventListener("click", () => {
+					const next = body.dataset.theme === "dark" ? "light" : "dark";
+					apply(next);
+					localStorage.setItem(key, next);
+				});
+			})();
+		</script>
+	</body>
+</html>

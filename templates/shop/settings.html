@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block head %}
+{% let page = "settings" %}
+{% endblock %}
+{% block content %}
+<h2>Настройки {{shop.name}}</h2>
+<form id="save" action="/shop/{{shop.id}}/settings" method="POST">
+	<label>
+		Название магазина
+		<input type="text" name="name" value="{{shop.name}}" />
+	</label>
+</form>
+<form id="remove" action="/shop/{{shop.id}}/remove" method="GET">
+</form>
+<span>
+	<button form="save">Сохранить</button>
+	<button form="remove" class="red">Удалить</button>
+</span>
+{% endblock %}

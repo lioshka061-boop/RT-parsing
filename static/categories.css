@@ -1,0 +1,89 @@
+#content {
+	padding: 1em;
+}
+
+#content > header:first-of-type {
+	display: flex;
+	grid-gap: 1em;
+	margin-bottom: 2em;
+}
+
+#content > header:first-of-type .placeholder {
+	flex-grow: 1;
+}
+
+#content > header:first-of-type h2 {
+	margin-top: 0;
+}
+
+.categories {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	grid-gap: 1em;
+	width: 100%;
+	box-sizing: border-box;
+}
+
+.add-category {
+	width: 50%;
+}
+
+.category {
+	display: flex;
+	flex-flow: column;
+	grid-gap: .5em;
+	width: 100%;
+}
+
+.category textarea {
+	width: 100%;
+	resize: none;
+	height: 10em;
+	min-height: 2em;
+}
+
+.category button {
+	width: 10em;
+}
+
+form {
+	border: 1px solid transparent;
+	width: fit-content;
+	padding: .5em;
+	box-sizing: border-box;
+}
+
+form.sent {
+	animation: sent-dissolve 2s;
+}
+
+form.error {
+	animation: error-dissolve 2s;
+}
+
+.category > span {
+	display: flex;
+	justify-content: space-between;
+}
+
+@keyframes sent-dissolve {
+	0% {
+		border: 1px solid rgba(0,255,0,1);
+	}
+	100% {
+		border: 1px solid rgba(0,255,0,0);
+	}
+}
+
+@keyframes error-dissolve {
+	0% {
+		border: 1px solid rgba(255,0,0,1);
+	}
+	100% {
+		border: 1px solid rgba(255,0,0,0);
+	}
+}
+
+form.hidden {
+	display: none;
+}

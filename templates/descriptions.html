@@ -1,0 +1,39 @@
+{% extends "shop/base.html" %}
+{% block head %}
+{% let page = "description" %}
+<link rel="stylesheet" href="/static/files.css" />
+{% endblock %}
+{% block content %}
+<h1>{{directory}}</h1>
+<h2>Добавить описание</h2>
+<form action="/shop/{{shop.id}}/upload_description" method="POST" 
+													enctype="multipart/form-data">
+	<label>
+		Файл
+		<input type="file" name="file" required />
+	</label>
+	<label>
+		Название файла
+		<input type="text" name="file_name" />
+	</label>
+	<button>Добавить</button>
+</form>
+{% if let Some(err) = err %}
+<span class="err">Ошибка: {{err}}</span>
+{% endif %}
+<h2>Список описаний</h2>
+<div class="files">
+	<span>Файл</span><span>Последнее изменение</span><span>Размер</span>
+	{% for e in files %}
+		<div>
+			<a href="/shop/{{shop.id}}/description/{{e.name}}">{{e.name}}</a> 
+			<form action="/shop/{{shop.id}}/remove_description/{{e.name}}" 
+				  method="POST">
+				<button>Удалить</button>
+			</form>
+		</div>
+		<span>{{e.last_modified}}</span> 
+		<span>{{e.format_size()}}</span> 
+	{% endfor %} 
+</div>
+{% endblock %}

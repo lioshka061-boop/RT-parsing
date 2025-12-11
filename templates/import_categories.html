@@ -1,0 +1,12 @@
+{% extends "shop/base.html" %}
+
+{% block content %}
+<form action="/shop/{{shop.id}}/categories/import" method="POST" 
+												   enctype="multipart/form-data">
+	<label>
+		Выберите файл
+		<input type="file" name="file" accept=".xml" required />
+	</label>
+	<button>Загрузить файл категорий</button>
+</form>
+{% endblock %}

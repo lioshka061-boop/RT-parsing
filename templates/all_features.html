@@ -1,0 +1,332 @@
+<div class="group">
+	<input id="only_available_{{link_hash}}" type="checkbox" name="only_available" {% if 
+											   opts.only_available %}checked{% 
+											   endif %} />
+	<label for="only_available_{{link_hash}}">Только в наличии</label>
+
+	<input id="vendor_{{link_hash}}" type="checkbox" value="true" name="add_vendor" {% if 
+													opts.add_vendor %}checked{% 
+													endif %} />
+	<label for="vendor_{{link_hash}}">Указание поставщика в заметках</label>
+	<input id="categories_{{link_hash}}" type="checkbox" value="true" 
+														 name="categories" {% 
+														 if opts.categories 
+														 %}checked{% endif %} 
+														 />
+	<label for="categories_{{link_hash}}">Использование категорий</label>
+	<input id="convert_to_uah_{{link_hash}}" type="checkbox" value="true" 
+															 name="convert_to_uah" 
+															 {% if 
+															 opts.convert_to_uah 
+															 %}checked{% endif 
+															 %} />
+	<label for="convert_to_uah_{{link_hash}}">Конвертировать в гривны</label>
+
+	<input id="format_years_{{link_hash}}" type="checkbox" name="format_years" {% if 
+											 opts.format_years %}checked{% 
+											 endif %} />
+	<label for="format_years_{{link_hash}}">гг.&nbsp;→&nbsp;годов</label>
+	<div class="placeholder"></div>
+</div>
+<div class="group">
+	<input id="set_availability_{{link_hash}}" type="checkbox" 
+											   name="set_availability_enabled" 
+											   {% if 
+											   opts.set_availability.is_some() 
+											   %}checked{% endif %} />
+	<label for="set_availability_{{link_hash}}">
+		Установить наличие
+	</label>
+	<div class="checkbox-group">
+		<label>
+			Наличие
+			<select name="set_availability">
+				{% match opts.set_availability %}
+					{% when Some with (Availability::Available) %}
+						<option value="NotAvailable">Нет в наличии</option>
+						<option value="Available" selected>В наличии</option>
+						<option value="OnOrder">Под заказ</option>
+					{% when Some with (Availability::NotAvailable) %}
+						<option value="NotAvailable" selected>
+						Нет в наличии
+						</option>
+						<option value="Available">В наличии</option>
+						<option value="OnOrder">Под заказ</option>
+					{% when Some with (Availability::OnOrder) %}
+						<option value="NotAvailable">Нет в наличии</option>
+						<option value="Available">В наличии</option>
+						<option value="OnOrder" selected>Под заказ</option>
+					{% when None %}
+						<option value="NotAvailable">Нет в наличии</option>
+						<option value="Available">В наличии</option>
+						<option value="OnOrder">Под заказ</option>
+				{% endmatch %}
+			</select>
+		</label>
+	</div>
+</div>
+<div class="group">
+	<input id="delivery_{{link_hash}}" type="checkbox" name="delivery_time" {% if 
+										 opts.delivery_time.is_some() %}checked 
+										 {% endif %}/>
+	<label for="delivery_{{link_hash}}">
+		Время доставки под заказ
+	</label>
+	<div class="checkbox-group">
+		<label>
+			Количество дней
+			<input type="number" name="delivery_time_duration" min="0" 
+															   max="100" {% if 
+															   let Some(time) = 
+															   opts.delivery_time 
+															   %}value="{{time}}"{% 
+															   endif %} />
+		</label>
+	</div>
+</div>
+<div class="group">
+	<input id="adjust-price_{{link_hash}}" name="adjust_price" type="checkbox" {% if 
+												 opts.adjust_price.is_some() 
+												 %}checked{% endif %}/>
+	<label for="adjust-price_{{link_hash}}">
+		Цена умножается на
+	</label>
+	<div class="checkbox-group">
+		<label>
+			Коэффициент
+			<input type="number" step="0.05" name="adjust_price_by" min="0.05" 
+																	{% if let 
+																	Some(coef) 
+																	= 
+																	opts.adjust_price 
+																	%}value="{{coef}}"{% 
+																	endif %}/>
+		</label>
+	</div>
+</div>
+<hr>
+<h3>Заголовок</h3>
+<div class="group">
+	<input type="checkbox" name="add_title_suffix" id="title_suffix_{{link_hash}}" {% if 
+												   opts.title_suffix.is_some() 
+												   %}checked {% endif %} />
+	<label for="title_suffix_{{link_hash}}">
+		Приставка
+	</label>
+	<div class="checkbox-group">
+		<label>
+			Текст
+			<input type="text" name="title_suffix" {% if let Some(suffix) = 
+							   opts.title_suffix %}value="{{suffix}}"{% endif 
+							   %} />
+		</label>
+	</div>
+</div>
+<div class="group">
+	<input type="checkbox" name="add_title_suffix_ua" 
+		   id="title_suffix_ua_{{link_hash}}" {% if 
+		   opts.title_suffix_ua.is_some() %}checked {% endif %} />
+	<label for="title_suffix_ua_{{link_hash}}">
+		Приставка (UA)
+	</label>
+	<div class="checkbox-group">
+		<label>
+			Текст
+			<input type="text" name="title_suffix_ua" {% if let Some(suffix) = 
+							   opts.title_suffix_ua %}value="{{suffix}}"{% endif 
+							   %} />
+		</label>
+	</div>
+</div>
+<hr>
+<h3>Скидка</h3>
+<div class="group">
+	<input id="discount_{{link_hash}}" name="discount" type="checkbox" {% if 
+										 opts.discount.is_some() %}checked{% 
+										 endif %}/>
+	<label for="discount_{{link_hash}}">
+		Скидка
+	</label>
+	<div class="checkbox-group">
+		<label>
+			Процент
+			<input type="number" name="discount_percent" min="0" max="100" {% 
+																 if let 
+																 Some(discount) 
+																 = 
+																 opts.discount 
+																 %}value="{{discount.percent}}"{% 
+																 endif %} />
+		</label>
+		<label>
+			Длительность (часов)
+			<input type="number" name="discount_duration" min="1" {% if let 
+														  Some(discount) = 
+														  opts.discount 
+														  %}value="{{discount.duration.as_secs() 
+																   / 60 / 
+																   60}}"{% 
+														  endif %} />
+		</label>
+	</div>
+</div>
+<hr>
+<h3>Описание</h3>
+<div class="group description">
+	<div class="placeholder"></div>
+	<input id="desc_replace_{{link_hash}}" type="radio" name="description_action" 
+										  value="replace" {% if let 
+										  Some(DescriptionOptions::Replace(_)) 
+										  = opts.description %}checked{% endif 
+										  %}/>
+	<label for="desc_replace_{{link_hash}}">Заменить</label>
+
+	<input id="desc_append_{{link_hash}}" type="radio" name="description_action" 
+										 value="append" {% if let 
+										 Some(DescriptionOptions::Append(_)) = 
+										 opts.description %}checked{% endif %} 
+										 />
+	<label for="desc_append_{{link_hash}}">Приставка</label>
+
+	<div class="checkbox-group">
+		<label>
+			Файл
+			<select name="description_path">
+				{% for d in descriptions %}
+					{% if let Some(desc) = opts.description %}
+					{% if desc.value() == d %}
+					<option selected>{{d}}</option>
+					{% else %}
+					<option>{{d}}</option>
+					{% endif %}
+					{% else %}
+					<option>{{d}}</option>
+					{% endif %}
+				{% endfor %}
+			</select>
+		</label>
+	</div>
+
+	<input id="desc_leave_{{link_hash}}" class="disable" type="radio" value="" 
+																	  name="description_action" 
+																	  {% if let 
+																	  None = 
+																	  opts.description 
+																	  %}checked{% 
+																	  endif%} 
+																	  />
+	<label for="desc_leave_{{link_hash}}">Оставить&nbsp;как&nbsp;есть</label>
+</div>
+<h3>Описание (UA)</h3>
+<div class="group description">
+	<div class="placeholder"></div>
+	<input id="desc_replace_ua_{{link_hash}}" type="radio" 
+											  name="description_action_ua" 
+											  value="replace" {% if let 
+											  Some(DescriptionOptions::Replace(_)) 
+											  = opts.description_ua %}checked{% 
+											  endif %}/>
+	<label for="desc_replace_ua_{{link_hash}}">Заменить</label>
+
+	<input id="desc_append_ua_{{link_hash}}" type="radio" 
+											 name="description_action_ua" 
+											 value="append" {% if let 
+											 Some(DescriptionOptions::Append(_)) 
+											 = opts.description_ua %}checked{% 
+											 endif %} />
+	<label for="desc_append_ua_{{link_hash}}">Приставка</label>
+
+	<div class="checkbox-group">
+		<label>
+			Файл
+			<select name="description_path_ua">
+				{% for d in descriptions %}
+					{% if let Some(desc) = opts.description_ua %}
+					{% if desc.value() == d %}
+					<option selected>{{d}}</option>
+					{% else %}
+					<option>{{d}}</option>
+					{% endif %}
+					{% else %}
+					<option>{{d}}</option>
+					{% endif %}
+				{% endfor %}
+			</select>
+		</label>
+	</div>
+
+	<input id="desc_leave_ua_{{link_hash}}" class="disable" type="radio" 
+															name="description_action_ua" 
+															{% if let None = 
+															opts.description_ua 
+															%}checked{% endif%} 
+															/>
+	<label 
+		for="desc_leave_ua_{{link_hash}}">Оставить&nbsp;как&nbsp;есть</label>
+</div>
+<hr>
+<h3>Водяные знаки</h3>
+<div class="group">
+	<div class="grid">
+		<input id="watermarks_{{link_hash}}" type="checkbox" value="watermark" 
+															 name="watermark" 
+															 {% if 
+															 opts.watermarks.is_some() 
+															 %}checked{% endif 
+															 %} />
+		<label for="watermarks_{{link_hash}}">Водяной знак</label>
+		<div class="checkbox-group vertical">
+			<label>
+				Водяной знак
+				<select name="watermark_name">
+					<optgroup label="Водяные знаки">
+					{% for w in watermarks %}
+					{% if opts.has_watermark(w.deref()) %}
+						<option checked>{{w}}</option>
+					{% else %}
+						<option>{{w}}</option>
+					{% endif %}
+					{% endfor %}
+					</optgroup>
+					<optgroup label="Группы">
+					{% for g in groups %}
+					{% if opts.has_watermark(g.id().0.to_string().borrow()) %}
+					<option selected value="{{g.id().0}}">{{g.name}}</option>
+					{% else %}
+					<option value="{{g.id().0}}">{{g.name}}</option>
+					{% endif %}
+					{% endfor %}
+					</optgroup>
+				</select>
+			</label>
+			<h4>Расположение</h4>
+			<div class="group grid">
+				<label>
+					По горизонтали
+					<select name="horizontal_position">
+						<option value="start">Слева</option>
+						<option value="center">По центру</option>
+						<option value="end">Справа</option>
+					</select>
+				</label>
+				<label>
+					По вертикали
+					<select name="vertical_position">
+						<option value="start">Сверху</option>
+						<option value="center">По центру</option>
+						<option value="end">Снизу</option>
+					</select>
+				</label>
+				<label>
+					Ширина (%)
+					<input type="number" name="width_percent" min="0" max="100" />
+				</label>
+				<label>
+					Высота (%)
+					<input type="number" name="height_percent" min="0" max="100" />
+				</label>
+				<input type="hidden" name="preserve" value="true" />
+			</div>
+		</div>
+	</div>
+</div>

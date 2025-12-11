@@ -1,0 +1,36 @@
+services:
+  rt-parsing:
+    build: .
+    image: rt-parsing:latest
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./watermark:/watermark
+      - ./.env:/.env
+      - ./storage:/storage
+      - ./export:/export
+      - ./description:/description
+      - ./cfg.d:/cfg.d
+      - ./static:/static
+      - ./tt_trans.d:/tt_trans.d
+      - ./watermark.grp.d:/watermark.grp.d
+    command: "./rt-parsing"
+    restart: always
+  db:
+    image: postgres
+    restart: always
+    hostname: postgres
+    env_file: 
+      - path: .env
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data 
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 1s
+      timeout: 5s
+      retries: 10

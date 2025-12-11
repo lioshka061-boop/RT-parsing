@@ -1,0 +1,12 @@
+{% extends "control_panel/base.html" %}
+{% block head %}
+{% let page = "parsing" %}
+{% endblock %}
+{% block content %}
+Количество товаров на странице: {{links.len()}}
+<div>
+	{% for l in links %}
+	<a href="https://{{url}}{{l}}" target="_blank">{{l}}</a><br>
+	{% endfor %}
+</div>
+{% endblock %}

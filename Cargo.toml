@@ -1,0 +1,81 @@
+[package]
+name = "rt-parsing"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+actix = "0.13.5"
+actix-broker = "0.4.3"
+actix-files = "0.6.5"
+actix-multipart = "0.6.1"
+actix-rt = "2.9.0"
+actix-session = { version = "0.9.0", features = ["cookie-session"] }
+actix-web = "4.8.0"
+anyhow = "1.0.87"
+askama = { version = "0.12.1", features = ["with-actix-web"] }
+askama_actix = { version = "0.14.0", features = ["serde-yaml"] }
+async-trait = "0.1.82"
+async_zip = { version = "0.0.16", features = ["deflate", "tokio", "tokio-util", "tokio-fs", "async-compression"] }
+csv = "1.3.0"
+csv-async = { version = "1.3.0", features = ["tokio", "tokio-stream"] }
+derive_more = { version = "1.0.0", features = ["display", "deref", "error" ] }
+envmnt = "0.10.4"
+futures = "0.3.30"
+futures-lite = "2.3.0"
+futures-util = "0.3.30"
+indicatif = { version = "0.17.7", features = ["futures"] }
+itertools = "0.13.0"
+lazy-regex = "3.3.0"
+log = "0.4.22"
+log-error = "0.1.1"
+once_cell = "1.19.0"
+pretty_env_logger = "0.5.0"
+quick-xml = { version = "0.36.1", features = ["serde", "serialize", "async-tokio", "overlapped-lists"] }
+rand = "0.8.5"
+regex = "1.10.2"
+reqwest = { version = "0.11.23", features = ["cookies", "gzip", "brotli", "deflate", "rustls-tls", "multipart"] }
+reqwest-middleware = "0.2.4"
+reqwest-ratelimit = "0.1.1"
+reqwest-retry = "0.3.0"
+rusqlite = { version = "0.31.0", features = ["time", "uuid", "bundled"] }
+rust_decimal = { version = "1.36.0", features = ["db-tokio-postgres", "serde-arbitrary-precision"] }
+rust_decimal_macros = "1.36.0"
+rust_xlsxwriter = { version = "0.64.2", features = [ "zlib" ] }
+scraper = "0.19.0"
+serde = { version = "1.0.210", features = ["derive"] }
+serde_arrays = "0.1.0"
+serde_with = "3.8.1"
+serde_yaml = "0.9.30"
+time = { version = "0.3.36", features = ["serde"] }
+tokio = { version = "1.40.0", features = ["macros", "sync", "rt", "rt-multi-thread", "fs", "signal"] }
+tokio-rusqlite = "0.5.1"
+tokio-util = "0.7.10"
+typesafe_repository = { version = "0.5.4", features = ["macros"] }
+uuid = { version = "1.10.0", features = ["v4", "serde", "fast-rng"] }
+xxhash-rust = { version = "0.8.12", features = ["const_xxh3", "xxh3", "xxh64"] }
+openssl = { version = "0.10" } 
+serde-aux = { version = "4.5.0", default-features = false }
+tokio-postgres = { version = "0.7.11", features = ["with-uuid-1", "array-impls", "with-time-0_3"] }
+bytes = "1.6.1"
+refinery = { version = "0.8.14", features = ["tokio-postgres"] }
+duration-str = { version = "0.11.2", default-features = false }
+photon-rs = { version = "0.3.3", default-features = false }
+mime = "0.3.17"
+num-traits = "0.2.19"
+serde_json = "1.0.127"
+derive_builder = "0.20.1"
+currency-service = { path = "./currency-service" }
+rt-types = { path = "./rt-types" }
+cached = { version = "0.53.1", features = ["async", "proc_macro"] }
+tokio-stream = { version = "0.1.16", features = ["fs"] }
+md-5 = "0.10.6"
+hmac = { version = "0.12.1", features = ["std"] }
+rt-parsing-davi = { version = "0.1.0", path = "rt-parsing-davi" }
+
+[profile.release]
+lto = false
+
+[profile.docker]
+inherits = "release"
+lto = "fat"
+codegen-units = 1

@@ -1,0 +1,367 @@
+#content {
+	margin-left: 0 !important;
+}
+
+#content > div {
+	display: flex;
+	flex-flow: column;
+	box-sizing: border-box;
+	padding: 1.75em 1.25em;
+	grid-gap: 1em;
+}
+
+#content > div > .group {
+	margin: .5em 0;
+	display: flex;
+	flex-flow: row;
+	justify-content: space-between;
+	align-items: center;
+	grid-gap: 1em;
+	padding: 0.6em 0.8em;
+	background: var(--panel-2);
+	border: 1px solid var(--border);
+	border-radius: 12px;
+}
+
+#content > div > .group > form {
+	margin: auto;
+}
+
+#content > div .placeholder {
+	flex-grow: 2;
+}
+
+.stage, .progress {
+	display: block;
+}
+
+.buttons {
+	display: flex;
+	flex-flow: column;
+	padding: .4em;
+	gap: .35em;
+	align-items: center;
+}
+
+.buttons form {
+	margin: 0;
+}
+
+.buttons a {
+	display: flex;
+	align-items: center;
+}
+
+.buttons button, .buttons .button {
+	background: var(--panel-2) !important;
+	border: 1px solid var(--border);
+	width: 40px;
+	height: 40px;
+	color: var(--text);
+	padding: .45em;
+	box-sizing: border-box;
+	transition: .1s ease-out border, .1s ease-out color;
+	border-radius: 10px;
+}
+
+.buttons button.export.expired {
+	color: var(--accent-2) !important;
+	border-color: var(--accent-2);
+}
+
+.buttons button:hover, .buttons .button:hover {
+	border-color: var(--accent);
+	color: var(--accent);
+}
+
+.button.edit {
+	background: var(--panel-2);
+}
+
+h1 {
+	margin: 0;
+}
+
+h3, .status {
+	margin: .5em 0;
+}
+
+h3 {
+	flex-grow: 1;
+}
+
+#content .list {
+	overflow: scroll;
+}
+
+#content .list .group {
+	border-radius: .9em;
+}
+
+.group-wrapper {
+	display: flex;
+	flex-flow: row;
+	gap: 0.5em;
+}
+
+.group-wrapper .group {
+	flex-grow: 1;
+	background: var(--panel-2);
+	color: var(--text);
+	border: 1px solid var(--border);
+}
+
+.group > .button {
+	display: flex;
+	align-items: center;
+}
+
+details summary {
+	display: block;
+}
+
+#content .list .group > summary {
+	display: flex;
+}
+
+#content .list .group > summary > .placeholder {
+	flex-grow: 1;
+}
+
+#content .list .group > summary, #content .list .group > div {
+	padding: .5em 0;
+}
+
+h2 {
+	margin: .5em 0;
+}
+
+.group:hover h2 + a {
+	color: black;
+}
+
+h2 + a {
+	transition: .1s ease-in color;
+	color: rgba(0,0,0,0);
+	margin-left: .5em;
+	text-decoration: none;
+}
+
+#content details {
+	line-break: anywhere;
+}
+
+details summary > h3 {
+ 	display: inline-block;
+}
+
+.feature {
+	background: rgba(106,182,255,0.15);
+	border-radius: .3em;
+	color: var(--text);
+	padding: .3em .5em;
+	box-sizing: border-box;
+	margin-bottom: .5em;
+	display: inline-block;
+	border: 1px solid var(--accent);
+}
+
+.import {
+	margin: .5em;
+	padding: .5em 1em;
+	border: 1px solid var(--border);
+	background: var(--panel-2);
+	border-radius: 14px;
+}
+
+details > .features {
+	margin-bottom: 1em;
+}
+
+.import > div > details > details {
+	padding-left: 1em;
+}
+
+.import > div:first-of-type {
+	flex-grow: 2;
+}
+
+
+.status {
+	position: relative;
+	height: 100%;
+	white-space: nowrap;
+}
+.status:after {
+	content: "";
+	position: absolute;
+	right: 0;
+	top: 0;
+	display: block;
+	width: .75em;
+	height: .75em;
+	border-radius: .75em;
+}
+
+.status.enqueued:after {
+	background: #7a7f8d;
+}
+
+.status.in_progress:after {
+	background: var(--accent);
+}
+
+.status.success:after {
+	background: var(--accent);
+}
+
+.status.suspended:after {
+	background: var(--accent-2);
+}
+
+.status.error:after {
+	background: #ff6b6b;
+}
+
+summary > .heading {
+	margin-bottom: auto;
+	display: flex;
+	align-items: center;
+}
+
+.status .note {
+	position: relative;
+	display: block;
+	opacity: 0;
+	right: 0;
+	padding: .5em;
+	background: var(--panel);
+	border-radius: .75em;
+	transition: 0.15s ease-in opacity;
+	max-height: 8em;
+	overflow: auto;
+	padding-right: 1em;
+}
+.status:hover .note {
+	opacity: 1;
+}
+
+button {
+	cursor: pointer;
+}
+
+button.export[disabled] {
+	opacity: .35;
+	cursor: default;
+}
+
+button.delete {
+	background: rgb(180,120,120);
+}
+
+.download-button {
+	position: relative;
+	cursor: pointer;
+}
+
+.download-button.disabled {
+	pointer-events: none;
+	opacity: .35;
+	cursor: default;
+}
+
+.download-button > .menu {
+	position: absolute;
+	background: var(--panel);
+	line-break: normal;
+	border-radius: .5em;
+	border: 1px solid var(--border);
+	right: 0;
+	display: flex;
+	flex-flow: column;
+	z-index: 2;
+	box-shadow: var(--shadow);
+}
+
+.download-button .last-modified {
+	padding: .5em 1em;
+}
+
+.download-button a {
+	color: var(--text);
+	text-decoration: none;
+	padding: .5em 1em;
+	transition: .1s ease-out background;
+	white-space: nowrap;
+}
+
+.download-button a:first-child {
+	border-radius: .3em .3em 0 0;
+}
+
+.download-button a:last-child {
+	border-radius: 0 0 .3em .3em;
+}
+
+.download-button a:hover {
+	background: rgba(106,182,255,0.1) !important;
+}
+
+.live-status {
+	position: fixed;
+	right: 1.25rem;
+	bottom: 1.25rem;
+	padding: 0.65em 0.95em;
+	border-radius: 0.85em;
+	border: 1px solid var(--border);
+	background: var(--panel-2);
+	color: var(--text);
+	box-shadow: var(--shadow);
+	opacity: 0;
+	pointer-events: none;
+	transition: opacity .2s ease-in-out;
+	font-weight: 600;
+}
+
+.live-status.show {
+	opacity: 1;
+}
+
+.live-status[data-state="working"] {
+	border-color: var(--accent);
+	color: var(--text);
+}
+
+.live-status[data-state="error"] {
+	border-color: #ff6b6b;
+	color: #ff9c9c;
+}
+
+.live-status[data-state="idle"] {
+	color: var(--muted);
+}
+
+@media screen and (orientation: portrait) {
+	body {
+		height: 100vh;
+		width: 100vw;
+		overflow: hidden;
+	}
+	#content {
+		grid-template-columns: 100vw 100vw;
+		padding: 0;
+		height: 100vh;
+		width: 100vw;
+		overflow: auto;
+		scroll-snap-type: x mandatory;
+	}
+	#content > div {
+		scroll-snap-align: center;
+		height: 100vh;
+	}
+}
+
+button.refresh i:last-child {
+	margin-left: -1.05em;
+	opacity: 0.5;
+}

@@ -1,0 +1,63 @@
+{% extends "shop/base.html" %}
+{% block head %}
+{% let page = "categories" %}
+<link rel="stylesheet" href="/static/categories.css" />
+{% endblock %}
+{% block content %}
+<header>
+	<h2>{{category.name}}</h2>
+	{% if let Some(id) = category.parent_id %}
+	<a class="button" href="/shop/{{shop.id}}/categories/{{id}}">К родительской 
+		категории</a>
+	{% endif %}
+</header>
+{% if subcategories.is_empty() %}
+У этой категории нет подкатегорий
+{% endif %}
+{% for c in subcategories %}
+<form id="remove_category_{{c.id}}" class="hidden" 
+									action="/shop/{{shop.id}}/category/delete/{{c.id}}" 
+									method="POST"></form>
+{% endfor %}
+<div class="categories">
+	{% for c in subcategories %}
+	<form class="category" onsubmit="return false" 
+						   action="/shop/{{shop.id}}/categories/update/{{c.id}}" 
+						   method="POST">
+		<span>
+			<input type="text" name="name" value="{{c.name}}" 
+										   placeholder="Название категории" />
+			<a href="/shop/{{shop.id}}/categories/{{c.id}}">Подкатегории</a>
+		</span>
+		<label>
+			Паттерн:
+			<textarea name="regex" autocomplete="off" autocapitalize="off">{% 
+				if let Some(regex) = c.regex %}{{regex}}{% endif %}</textarea>
+		</label>
+		<label>
+			Родительская категория
+			<select name="parent_id">
+				<option value="">Нет</option>
+				{% for ca in categories %}
+					{% if ca != c %}
+						{% if let Some(id) = c.parent_id %}
+							{% if id == ca.id.borrow() %}
+								<option selected value="{{ca.id}}">{{ca.name}}</option>
+							{% else %}
+								<option value="{{ca.id}}">{{ca.name}}</option>
+							{% endif %}
+						{% endif %}
+					{% endif %}
+				{% endfor %}
+			</select>
+		</label>
+		<span>
+			<button>Сохранить</button>
+			<button form="remove_category_{{c.id}}" 
+						  class="red">Удалить</button>
+		</span>
+	</form>
+	{% endfor %}
+</div>
+<script src="/static/categories.js"></script>
+{% endblock %}

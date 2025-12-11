@@ -1,0 +1,6 @@
+.add-shop {
+	display: flex;
+	flex-flow: column;
+	align-items: flex-start;
+	grid-gap: 1em;
+}

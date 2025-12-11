@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block head %}
+<link rel="stylesheet" href="/static/control_panel/user.css" />
+{% endblock %}
+{% block content %}
+<h2>{{edited_user.login}}</h2>
+
+<form action="/control_panel/users/{{edited_user.login}}/edit" method="POST" 
+															   class="user">
+	<h3>Подписка</h3>
+	<select name="subscription">
+		<option value="">Нет</option>
+		{% let has_sub = false %}
+		{% for sub in subscriptions %}
+		{% if Some(sub) == subscription.as_ref().as_ref() %}
+		<option selected value="{{sub.id}}">{{sub.name}}</option>
+		{% set has_sub = true %}
+		{% else %}
+		<option value="{{sub.id}}">{{sub.name}}</option>
+		{% endif %}
+		{% endfor %}
+		{% if let Some(sub) = subscription %}
+		{% if !has_sub %}
+		<option disabled selected>{{sub.name}} (архив)</option>
+		{% endif %}
+		{% endif %}
+	</select>
+	{% if let Some(sub) = subscription %}
+	{% if !has_sub %}
+	<h3>Условия подписки</h3>
+	<div class="subscription-details">
+		<span>Цена</span>
+		<span>${{sub.price}}</span>
+		<span>Магазины</span>
+		<span>До {{sub.maximum_shops}}</span>
+		<span>Экспортов на магазин</span>
+		<span>До {{sub.limits.maximum_exports}}</span>
+		<span>Ссылок на экспорт</span>
+		<span>До {{sub.limits.links_per_export}}</span>
+		<span>Описания</span>
+		<span>
+			{% if let Some(desc) = sub.limits.descriptions %}
+				до {{sub.limits.links_per_export}}
+			{% else %}
+				-
+			{% endif %}
+		</span>
+		<span>
+			Частота обновления
+		</span>
+		<span>
+			не чаще {{crate::format_duration(sub.limits.minimum_update_rate)}}
+		</span>
+	</div>
+	{% endif %}
+	{% endif %}
+	<button>Сохранить</button>
+</form>
+{% endblock %}

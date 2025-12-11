@@ -1,0 +1,32 @@
+{% if let Some(suffix) = opts.title_suffix %}
+<span class="feature">Приставка "{{suffix}}"</span>
+{% endif %}
+{% if let Some(suffix) = opts.title_suffix_ua %}
+<span class="feature">Приставка UA "{{suffix}}"</span>
+{% endif %}
+{% if opts.only_available %}
+<span class="feature">Только в наличии</span>
+{% endif %}
+{% if let Some(discount) = opts.discount %}
+<span class="feature discount">Скидка {{discount.percent}}% в течение 
+	{{discount.duration.as_secs() / 60 / 60}}ч.</span>
+{% endif %}
+{% if opts.add_vendor %}
+<span class="feature">Указание поставщика в заметках</span>
+{% endif %}
+{% if opts.format_years %}
+<span class="feature">гг. → годов</span>
+{% endif %}
+{% if let Some(DescriptionOptions::Replace(_)) = opts.description 
+%}
+<span class="feature">Замена описания</span>
+{% endif %}
+{% if let Some(DescriptionOptions::Append(_)) = opts.description %}
+<span class="feature">Приставка к описанию</span>
+{% endif %}
+{% if let Some(delivery_time) = opts.delivery_time %}
+<span class="feature">Время доставки- {{delivery_time}} дней</span>
+{% endif %}
+{% if let Some(adjust_price) = opts.adjust_price %}
+<span class="feature">Цена умножается на {{adjust_price}}</span>
+{% endif %}

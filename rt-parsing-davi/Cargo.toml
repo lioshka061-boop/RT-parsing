@@ -1,0 +1,25 @@
+[package]
+name = "rt-parsing-davi"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+actix = "0.13.5"
+anyhow = "1.0.92"
+async-trait = "0.1.83"
+derive_more = { version = "1.0.0", features = ["constructor"] }
+futures = "0.3.31"
+itertools = "0.13.0"
+log = "0.4.22"
+log-error = "0.1.1"
+once_cell = "1.20.2"
+reqwest = { version = "0.11.23", features = ["deflate", "gzip", "brotli"] }
+reqwest-middleware = "0.2.4"
+rt-types = { version = "0.1.0", path = "../rt-types" }
+rust_decimal = { version = "1.36.0", default-features = false }
+scraper = "0.21.0"
+time = "0.3.36"
+tokio = "1.41.0"
+tokio-postgres = { version = "0.7.12", features = ["array-impls", "with-time-0_3", "with-uuid-1"] }
+typesafe_repository = "0.5.6"
+uuid = { version = "1.11.0", default-features = false, features = ["v4", "fast-rng", "serde"] }

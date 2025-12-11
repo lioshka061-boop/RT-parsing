@@ -1,0 +1,31 @@
+[package]
+name = "rt-types"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+actix = "0.13"
+actix-broker = "0.4"
+anyhow = "1.0"
+async-trait = "0.1"
+derive_more = { version = "1.0.0", features = ["display", "deref"] }
+duration-str = { version = "0.11.2", default-features = false }
+itertools = "0.13"
+lazy-regex = "3.3"
+log = "0.4"
+log-error = "0.1.1"
+photon-rs = { version = "0.3.3", default-features = false }
+quick-xml = { version = "0.36", features = ["serde", "serialize"] }
+rand = "0.8.5"
+rust-argon2 = { version = "2.1.0", features = ["serde"] }
+rust_decimal = "1.36"
+rust_decimal_macros = "1.36"
+serde = { version = "1.0", features = ["serde_derive"] }
+serde-aux = "4.5.0"
+serde_arrays = "0.1.0"
+time = { version = "0.3", features = ["serde"] }
+tokio = { version = "1.40", features = ["macros", "fs"] }
+serde_json = "1.0"
+typesafe_repository = "0.5.6"
+uuid = { version = "1.10", default-features = false, features = ["v4", "fast-rng", "serde"] }
+xxhash-rust = { version = "0.8", features = ["xxh64", "xxh3", "const_xxh3"] }

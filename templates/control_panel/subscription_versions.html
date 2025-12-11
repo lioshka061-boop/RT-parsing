@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block head %}
+<link rel="stylesheet" href="/static/control_panel/subscriptions.css" />
+{% endblock %}
+{% block content %}
+<header>
+	<h1>{{id}}</h1>
+	<div class="placeholder"></div>
+	<a class="button" href="/control_panel/subscriptions/add"><i 
+					  class="ri-add-line"></i></a>
+</header>
+<div class="subscriptions">
+	{% for sub in subscriptions %}
+		<div class="subscription">
+			<form id="remove_subscription_{{sub.id}}" 
+				  action="/control_panel/subscriptions/{{sub.id}}/{{sub.version}}/remove" 
+				  method="POST" >
+			</form>
+			<header>
+				<h2>{{sub.name}}&nbsp;v{{sub.version}}{% if sub.yanked %} (архив){% endif %}</h2>
+				<div class="placeholder"></div>
+				<a class="action-button" 
+				   href="/control_panel/subscriptions/{{sub.id}}/{{sub.version}}/edit">
+					<i class="ri-edit-box-line"></i>
+				</a>
+				<button form="remove_subscription_{{sub.id}}" 
+						class="action-button">
+					<i class="ri-delete-bin-line"></i>
+				</button>
+			</header>
+			<span>Магазины: до {{sub.maximum_shops}}</span>
+			<span>Цена: ${{sub.price}}</span>
+			<span>Экспортов на магазин: до 
+				{{sub.limits.maximum_exports}}</span>
+			<span>Ссылок на экспорт: до {{sub.limits.links_per_export}}</span>
+			<span>Описания:
+				{% if let Some(desc) = sub.limits.descriptions %}
+					до {{sub.limits.links_per_export}}
+				{% else %}
+					-
+				{% endif %}
+			</span>
+			<span>
+				Частота обновления: не чаще 
+				{{crate::format_duration(sub.limits.minimum_update_rate)}}
+			</span>
+		</div>
+	{% endfor %}
+</div>
+{% endblock %}

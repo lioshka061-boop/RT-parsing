@@ -1,0 +1,19 @@
+{% extends "../base.html" %}
+{% block head %}
+{% let user = Some(user) %}
+{% endblock %}
+{% block nav %}
+<link rel="stylesheet" href="/static/nav.css" />
+<nav id="nav">
+	<a class="nav-title" href="/me">{{user.login}}</a>
+	<div class="entries">
+		<a href="/shops" {% if page == "shops" %}class="current"{% endif %}>Мои 
+			магазины</a>
+		<a href="/me" {% if page == "me" %}class="current"{% endif 
+		   %}>Аккаунт</a>
+		<a href="/me/subscription" {% if page == "subscription" %} 
+			class="current"{% endif %}>Подписка</a>
+		<a href="/logout" class="red">Выйти</a>
+	</div>
+</nav>
+{% endblock %}

@@ -1,0 +1,11 @@
+.split {
+	display: grid;
+	grid-template-columns: auto auto;
+}
+
+#pay {
+	display: flex;
+	flex-flow: column;
+	align-items: flex-start;
+	grid-gap: .5em;
+}

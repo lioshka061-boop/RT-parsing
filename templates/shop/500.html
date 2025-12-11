@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block head %}
+<link rel="stylesheet" href="/static/error.css" />
+{% endblock %}
+
+{% block content %}
+<h1>Что-то пошло не так</h1>
+<h2>{{error}}</h2>
+{% endblock %}

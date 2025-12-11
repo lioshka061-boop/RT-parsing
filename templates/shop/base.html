@@ -1,0 +1,36 @@
+{% extends "../base.html" %}
+{% block nav %}
+<link rel="stylesheet" href="/static/shop.css" />
+<link rel="stylesheet" href="/static/nav.css" />
+<nav id="nav">
+	<span class="nav-title">
+		<a href="/shop/{{shop.id}}">{{shop.name}}</a>
+		{% if shop.is_suspended %}
+			<i class="warning ri-alert-fill" 
+				title="Работа этого магазина приостановлена"></i>
+		{% endif %}
+	</span>
+	<div class="entries">
+		<a href="/shop/{{shop.id}}" {% if page == "index" %}class="current"{% 
+		   endif %}>
+			<i class="ri-import-line"></i>Импорт
+		</a>
+		<a href="/shop/{{shop.id}}/description" {% if page == "description" 
+		   %}class="current"{% endif %}>
+			<i class="ri-article-line"></i>Описания
+		</a>
+		<a href="/shop/{{shop.id}}/categories" {% if page == "categories" 
+		   %}class="current"{% endif %}>
+			<i class="ri-archive-stack-line"></i>Категории
+		</a>
+		<a href="/shop/{{shop.id}}/watermark" {% if page == "watermark" 
+		   %}class="current"{% endif %}>
+			<i class="ri-image-edit-line"></i>Прокси для изображений
+		</a>
+		<a href="/shop/{{shop.id}}/settings" {% if page == "settings" 
+		   %}class="current"{% endif %}>
+			<i class="ri-settings-2-line"></i>Настройки
+		</a>
+	</div>
+</nav>
+{% endblock %}

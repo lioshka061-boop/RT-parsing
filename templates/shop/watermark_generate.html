@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block head %}
+{% let page = "watermark" %}
+{% endblock %}
+{% block content %}
+<form action="/shop/{{shop.id}}/watermark/{{name}}/generate" method="POST">
+	<input type="text" name="link" />
+	<button>Сгенерировать</button>
+</form>
+{% endblock %}

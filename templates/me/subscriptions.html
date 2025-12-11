@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block head %}
+<link rel="stylesheet" href="/static/me/subscriptions.css" />
+{% endblock %}
+{% block content %}
+<h2>Выберите план</h2>
+<div class="subscriptions">
+	{% for sub in subscriptions %}
+	<input id="select_sub_{{sub.id}}" form="apply" type="radio" 
+												   name="subscription_id" 
+												   value="{{sub.id}}" />
+		<label for="select_sub_{{sub.id}}" class="subscription">
+			<form id="remove_subscription_{{sub.id}}" 
+				  action="/control_panel/subscriptions/{{sub.id}}/remove" 
+				  method="POST" >
+			</form>
+			<h2>{{sub.name}}</h2>
+			<span>Магазины: до {{sub.maximum_shops}}</span>
+			<span>Цена: ${{sub.price}}</span>
+			<span>Экспортов на магазин: до 
+				{{sub.limits.maximum_exports}}</span>
+			<span>Ссылок на экспорт: до {{sub.limits.links_per_export}}</span>
+			<span>Описания:
+				{% if let Some(desc) = sub.limits.descriptions %}
+					до {{sub.limits.links_per_export}}
+				{% else %}
+					-
+				{% endif %}
+			</span>
+			<span>
+				Частота обновления: не чаще 
+				{{crate::format_duration(sub.limits.minimum_update_rate)}}
+			</span>
+		</label>
+	{% endfor %}
+</div>
+<h2>Оплата</h2>
+<form id="apply" action="/me/subscription/apply" method="POST">
+	<button>Перейти к оплате</button>
+</form>
+{% endblock %}

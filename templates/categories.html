@@ -1,0 +1,93 @@
+{% extends "shop/base.html" %}
+{% block head %}
+{% let page = "categories" %}
+<link rel="stylesheet" href="/static/categories.css" />
+<link rel="stylesheet" href="/static/menu.css" />
+{% endblock %}
+{% block content %}
+<header>
+	<div>
+		<h2>Категории</h2>
+		<span>Всего категорий: {{total_categories}}</span>
+	</div>
+	<div class="placeholder"></div>
+	<div>
+		<details class="menu">
+			<summary><i class="menu-button ri-more-2-fill"></i></summary>
+			<div class="content">
+				<form id="clear_categories" 
+					  action="/shop/{{shop.id}}/categories/clear" 
+							  method="POST">
+				</form>
+				<a href="/shop/{{shop.id}}/categories/import">Импортировать 
+					категории</a>
+				<button form="clear_categories" 
+						onclick="return confirm('Удалить все категории магазина?')">
+					Очистить
+				</button>
+			</div>
+		</details>
+	</div>
+</header>
+<form class="add-category category" action="/shop/{{shop.id}}/categories/add" 
+									method="POST">
+	<span>
+		<input type="text" name="name" placeholder="Название категории" />
+	</span>
+	<label>
+		Паттерн:
+		<textarea name="regex" autocomplete="off" 
+			autocapitalize="off"></textarea>
+	</label>
+	<label>
+		Родительская категория
+		<select name="parent_id">
+			<option value="">Нет</option>
+			{% for ca in categories %}
+				<option value="{{ca.id}}">{{ca.name}}</option>
+			{% endfor %}
+		</select>
+	</label>
+	<span>
+		<button>Добавить</button>
+	</span>
+</form>
+{% for c in categories %}
+<form id="remove_category_{{c.id}}" class="hidden" 
+									action="/shop/{{shop.id}}/category/delete/{{c.id}}" 
+									method="POST"></form>
+{% endfor %}
+<div class="categories">
+	{% for c in categories %}
+	<form class="category" 
+		  action="/shop/{{shop.id}}/categories/update/{{c.id}}" method="POST">
+		<span>
+			<input type="text" name="name" value="{{c.name}}" 
+										   placeholder="Название категории" />
+			<a href="/shop/{{shop.id}}/categories/{{c.id}}">Подкатегории</a>
+		</span>
+		<label>
+			Паттерн:
+			<textarea name="regex" autocomplete="off" autocapitalize="off">{% 
+				if let Some(regex) = c.regex %}{{regex}}{% endif %}</textarea>
+		</label>
+		<label>
+			Родительская категория
+			<select name="parent_id">
+				<option value="">Нет</option>
+				{% for ca in categories %}
+				{% if ca != c %}
+				<option value="{{ca.id}}">{{ca.name}}</option>
+				{% endif %}
+				{% endfor %}
+			</select>
+		</label>
+		<span>
+			<button>Сохранить</button>
+			<button form="remove_category_{{c.id}}" class="red">Удалить</button>
+		</span>
+	</form>
+	{% endfor %}
+</div>
+<script src="/static/categories.js"></script>
+{% endblock %}

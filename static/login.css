@@ -1,0 +1,28 @@
+#content {
+	display: flex;
+	flex-flow: column;
+	justify-content: center;
+	align-items: center;
+	height: calc(100vh - 5em);
+	box-sizing: border-box;
+}
+
+#content form {
+	display: flex;
+	flex-flow: column;
+	width: 30vw;
+	position: relative;
+}
+
+#content form .error {
+	position: absolute;
+	top: -2em;
+}
+
+#content form label, #content form button {
+	margin-top: 1em;
+}
+
+#content form input {
+	padding: .5em .25em;
+}

@@ -1,0 +1,8 @@
+form:invalid button {
+	pointer-events: none;
+	opacity: .5;
+}
+
+form button {
+	transition: .15s ease-in opacity;
+}

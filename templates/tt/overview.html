@@ -1,0 +1,18 @@
+{% extends "control_panel/base.html" %}
+{% block head %}
+<link rel="stylesheet" href="/static/index.css" />
+{% endblock %}
+{% block content %}
+<div>
+	Всего товаров: {{count}}
+	Переведено: {{translated_count}}
+	<a href="/tt/translations" class="button">Скачать список товаров без переводов</a>
+	<form action="/tt/translations" method="POST" enctype="multipart/form-data">
+		<label>
+			Выберите файл
+			<input type="file" name="file" accept=".csv" required />
+		</label>
+		<button>Загрузить файл переводов</button>
+	</form>
+</div>
+{% endblock %}

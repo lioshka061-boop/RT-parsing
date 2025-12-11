@@ -1,0 +1,14 @@
+{% extends "../base.html" %}
+{% block head %}
+<link rel="stylesheet" href="/static/shop/add.css" />
+{% endblock %}
+{% block content %}
+<h2>Добавить магазин</h2>
+<form action="/shop/add" method="POST" class="add-shop">
+	<label>
+		Название
+		<input type="text" name="name" />
+	</label>
+	<button>Добавить</button>
+</form>
+{% endblock %}

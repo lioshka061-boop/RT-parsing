@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block head %}
+<link rel="stylesheet" href="/static/landing/index.css" />
+<link rel="stylesheet" href="/static/control_panel/subscriptions.css" />
+{% endblock %}
+{% block header %}
+{% let user = crate::control::into_user_option(user) %}
+<header id="header">
+	<img class="logo" src="/static/logo.png" />
+	<a href="#about">О сервисе</a>
+	<a href="#subscriptions">Планы</a>
+	<div class="placeholder"></div>
+	{% if let Some(creds) = user %}
+	<a href="/me">{{creds.login}}<i class="ri-user-line"></i></a>
+	{% else %}
+	<a href="/register">Регистрация</a>
+	<a href="/login">Войти</a>
+	{% endif %}
+</header>
+{% endblock %}
+{% block content %}
+<div id="background"></div>
+<div id="overlay"></div>
+<section id="main">
+	<h1>Импорт товаров- легко</h1>
+	<span></span>
+	<a href="#about">
+		<button>Узнать больше</button>
+	</a>
+</section>
+<section id="about">
+	<div class="wrapper">
+		<div>
+			<h2>О сервисе</h2>
+			<span>
+				Наш сервис позволяет собирать файлы с товарами различных 
+				источников для обработки и последующей выгрузки на маркетплейс
+			</span>
+		</div>
+		<div>
+			<h2>Функции</h2>
+			<ul>
+				<li>Импорт товаров из каталогов и интернет-магазинов</li>
+				<li>Работа с описаниями, ценами, валютами, скидками</li>
+				<li>Автоматизированное назначение категорий товаров</li>
+				<li>Настраиваемые водяные знаки</li>
+				<li>Экспорт товаров в csv и xml для prom.ua и совместимых 
+					площадок</li>
+			</ul>
+		</div>
+	</div>
+</section>
+<section class="subscriptions" id="subscriptions">
+	<div class="wrapper">
+		<h2>Планы</h2>
+		<div class="subscriptions">
+			{% for sub in subscriptions %}
+			{% if !sub.yanked %}
+			<div class="subscription">
+				<header>
+					<h2>{{sub.name}}</h2>
+					<div class="placeholder"></div>
+				</header>
+				<span>Магазины: до {{sub.maximum_shops}}</span>
+				<span>Цена: ${{sub.price}}</span>
+				<span>Экспортов на магазин: до 
+					{{sub.limits.maximum_exports}}</span>
+				<span>Ссылок на экспорт: до {{sub.limits.links_per_export}}</span>
+				<span>Описания:
+					{% if let Some(desc) = sub.limits.descriptions %}
+						до {{sub.limits.links_per_export}}
+					{% else %}
+						-
+					{% endif %}
+				</span>
+			</div>
+			{% endif %}
+			{% endfor %}
+		</div>
+	</div>
+</section>
+{% endblock %}

@@ -1,0 +1,77 @@
+#nav {
+	display: flex;
+	flex-flow: column;
+	position: sticky;
+	top: 0;
+	height: 100vh;
+	padding: .5em;
+	padding-top: 0;
+	background: linear-gradient(180deg, #121725 0%, #0e131e 100%);
+	grid-gap: .5em;
+	box-sizing: border-box;
+	width: 12em;
+	flex-shrink: 0;
+	border-right: 1px solid var(--border);
+	box-shadow: var(--shadow);
+}
+
+#nav .nav-title {
+	height: 5em;
+	padding: 0 .5em;
+	color: var(--text);
+	font-weight: 700;
+}
+
+#nav span.nav-title {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 0 .5em;
+}
+
+#nav a {
+	color: var(--text);
+	text-decoration: none;
+	font-weight: 400;
+	display: flex;
+	grid-gap: .25em;
+	align-items: center;
+	border-left: 2px solid transparent;
+	position: relative;
+	transition: color .15s ease, background .15s ease;
+}
+
+#nav .entries a {
+	margin: .2em 0;
+	padding: .5em .75em;
+}
+
+#nav .entries a > i {
+	font-size: 1.4em;
+	margin-right: .25em;
+}
+
+#nav .entries a:before {
+	content: "";
+	height: 0;
+	transition: .2s ease-in background;
+	left: 0;
+	width: 2px;
+	position: absolute;
+	background: transparent;
+	height: 90%;
+}
+
+#nav .entries a.current:before, #nav .entries a:hover:before {
+	background: var(--button-hover);
+}
+
+#nav .entries a.current:before {
+	background: var(--accent);
+}
+
+#nav .entries a:hover {
+	color: var(--accent);
+	background: rgba(106,182,255,0.05);
+	border-radius: 10px;
+}

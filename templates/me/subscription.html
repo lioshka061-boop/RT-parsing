@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block head %}
+<link rel="stylesheet" href="/static/me/subscription.css" />
+{% endblock %}
+{% block content %}
+{% if let Some((sub, payment)) = subscription %}
+<h1>Ваша подписка - {{sub.name}}</h1>
+<div class="split">
+	<div>
+		<h2>Информация</h2>
+		<div class="limits">
+			<h3>Условия</h3>
+			<div class="split">
+				<span>Количество магазинов</span>
+				<span>до {{sub.maximum_shops}}</span>
+				<span>Количество экспортов</span>
+				<span>до {{sub.limits.maximum_exports}}</span>
+				<span>Количество ссылок на экспорт</span>
+				<span>до {{sub.limits.links_per_export}}</span>
+				<span>Количество уникальных ссылок</span>
+				<span>до {{sub.limits.unique_links}}</span>
+				{% if let Some(descriptions) = sub.limits.descriptions %}
+				<span>Количество описаний</span>
+				<span>до {{descriptions}}</span>
+				<span>Максимальный размер описаний</span>
+				<span>{{sub.limits.maximum_description_size}}</span>
+				{% else %}
+				<span>Описания</span>
+				<span>Нет</span>
+				{% endif %}
+				<span>Категории</span>
+				{% if let Some(categories) = sub.limits.categories %}
+				<span>до {{categories}}</span>
+				{% else %}
+				<span>Нет</span>
+				{% endif %}
+				<span>Минимальное время обновления</span>
+				<span>{{crate::format_duration(sub.limits.minimum_update_rate)}}</span>
+			</div>
+			<h3>Стоимость</h3>
+			<span>${{sub.price}} в месяц</span>
+		</div>
+	</div>
+	<div>
+		<h2>Управление</h2>
+		{% if let Some(payment) = payment %}
+		{% if let Some(paid) = payment.paid_due() %}
+		Ваша подписка оплачена на 
+		{{crate::format_duration((OffsetDateTime::now_utc().date() - 
+		paid.date()).unsigned_abs().borrow())}} (до {{paid.date()}})
+		{% endif %}
+		{% endif %}
+		<form method="POST" action="/me/subscription/pay" id="pay">
+			<label>
+				Продлить на
+				<input type="number" min="30" max="65535" step="1" name="days" 
+																   value="30" 
+																   />
+				д.
+			</label>
+			<button class="button" form="pay">Оплатить</button>
+		</form>
+	</div>
+</div>
+{% else %}
+<span>У вас нет подписки</span>
+<a href="/me/subscriptions">Выбрать</a>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,44 @@
+section header {
+	display: flex;
+	align-items: center;
+}
+
+section header .placeholder {
+	flex-grow: 1;
+}
+
+section header .action {
+	font-size: 1.5em;
+}
+
+.users {
+	border-collapse: collapse;
+}
+
+.users td, .users th {
+	border: 0px solid transparent;
+	background-clip: padding-box;
+}
+
+.users tr > th + th, .users tr > td + td {
+  border-left-width: 1.5em;
+}
+
+.users tr + tr > td {
+  border-top-width: .5em;
+}
+
+.registration-codes {
+	display: flex;
+	flex-flow: column;
+	grid-gap: .5em;
+}
+
+.users .actions {
+	opacity: 0;
+	transition: .1s ease-in opacity;
+}
+
+.users tr:hover .actions {
+	opacity: 1;
+}

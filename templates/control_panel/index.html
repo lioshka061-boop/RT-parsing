@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block head %}
+{% let page = "index" %}
+<link rel="stylesheet" href="/static/control_panel/index.css" />
+{% endblock %}
+{% block content %}
+<h1>Статус сервисов</h1>
+<div class="status">
+	{% for (name, status) in status %}
+	<span>{{name}}</span> <span>{{status}}</span>
+	{% endfor %}
+</div>
+{% endblock %}
