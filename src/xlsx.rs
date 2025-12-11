@@ -46,16 +46,7 @@ pub fn write_xlsx_dto_map(
                 } else {
                     p.title.clone()
                 };
-                let formatted = if opts.format_years {
-                    format_years(&base)
-                } else {
-                    base
-                };
-                let formatted = format_replica(&formatted);
-                match &opts.title_suffix {
-                    Some(suffix) => format!("{formatted} {}", suffix.trim()),
-                    None => formatted,
-                }
+                build_title(opts, &base, false)
             })
         })
         .collect();
@@ -70,12 +61,7 @@ pub fn write_xlsx_dto_map(
                     .map(|t| t.title.clone())
                     .filter(|t| !t.is_empty())
                     .unwrap_or_else(|| p.title.clone());
-                match &opts.title_suffix_ua {
-                    Some(suffix) => {
-                        format!("{} {}", format_replica(&title), suffix.trim())
-                    }
-                    None => title,
-                }
+                build_title(opts, &title, true)
             })
         })
         .collect();
@@ -480,6 +466,45 @@ pub fn format_replica(input: &str) -> String {
     let regex = regex!(r"(?i)(реплик.|реплік.|копи.)");
     let input = regex.replace_all(&input, r"");
     input.to_string().replace("()", "").replace("  ", " ")
+}
+
+pub fn build_title(opts: &ExportOptions, base: &str, is_ua: bool) -> String {
+    let mut title = if opts.format_years {
+        format_years(base)
+    } else {
+        base.to_string()
+    };
+    title = format_replica(&title);
+    if let Some(repls) = &opts.title_replacements {
+        for (from, to) in repls {
+            if !from.is_empty() {
+                title = title.replace(from, to);
+            }
+        }
+    }
+    let prefix = if is_ua {
+        opts.title_prefix_ua.as_deref()
+    } else {
+        opts.title_prefix.as_deref()
+    }
+    .map(str::trim)
+    .filter(|s| !s.is_empty());
+    let suffix = if is_ua {
+        opts.title_suffix_ua.as_deref()
+    } else {
+        opts.title_suffix.as_deref()
+    }
+    .map(str::trim)
+    .filter(|s| !s.is_empty());
+    let mut parts = Vec::new();
+    if let Some(p) = prefix {
+        parts.push(p);
+    }
+    parts.push(title.trim());
+    if let Some(s) = suffix {
+        parts.push(s);
+    }
+    parts.join(" ")
 }
 
 pub fn trim_images(input: &str) -> String {

@@ -9,8 +9,8 @@ use std::collections::BTreeSet;
 use typesafe_repository::macros::Id;
 use typesafe_repository::{GetIdentity, Identity, IdentityBy, IdentityOf, RefIdentity};
 
-pub mod service;
 pub mod repository;
+pub mod service;
 
 pub const PASSWORD_LENGTH: u32 = 64;
 pub const MIN_PASSWORD_LENGTH: u32 = 5;

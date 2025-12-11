@@ -932,11 +932,18 @@ pub struct ExportEntryLinkDto {
     pub vendor_name: Option<String>,
     pub link: Option<String>,
     #[serde(default, deserialize_with = "deserialize_bool_form")]
+    pub add_title_prefix: bool,
+    pub title_prefix: Option<String>,
+    #[serde(default, deserialize_with = "deserialize_bool_form")]
     pub add_title_suffix: bool,
     pub title_suffix: Option<String>,
     #[serde(default, deserialize_with = "deserialize_bool_form")]
+    pub add_title_prefix_ua: bool,
+    pub title_prefix_ua: Option<String>,
+    #[serde(default, deserialize_with = "deserialize_bool_form")]
     pub add_title_suffix_ua: bool,
     pub title_suffix_ua: Option<String>,
+    pub title_replacements: Option<String>,
     #[serde(default, deserialize_with = "deserialize_bool_form")]
     pub format_years: bool,
     #[serde(default, deserialize_with = "deserialize_bool_form")]
@@ -998,7 +1005,36 @@ impl TryInto<ExportEntryLink> for ExportEntryLinkDto {
 
 impl Into<ExportOptions> for ExportEntryLinkDto {
     fn into(self) -> ExportOptions {
+        let parse_replacements = |raw: Option<String>| -> Option<Vec<(String, String)>> {
+            let raw = raw?;
+            let pairs: Vec<_> = raw
+                .lines()
+                .filter_map(|line| {
+                    let mut parts = line.splitn(2, '=');
+                    let from = parts.next().map(str::trim).unwrap_or_default();
+                    let to = parts.next().map(str::trim).unwrap_or_default();
+                    if !from.is_empty() && !to.is_empty() {
+                        Some((from.to_string(), to.to_string()))
+                    } else {
+                        None
+                    }
+                })
+                .collect();
+            if pairs.is_empty() {
+                None
+            } else {
+                Some(pairs)
+            }
+        };
         ExportOptions {
+            title_prefix: self
+                .title_prefix
+                .filter(|_| self.add_title_prefix)
+                .filter(|s| !s.trim().is_empty()),
+            title_prefix_ua: self
+                .title_prefix_ua
+                .filter(|_| self.add_title_prefix_ua)
+                .filter(|s| !s.trim().is_empty()),
             title_suffix: self
                 .title_suffix
                 .filter(|_| self.add_title_suffix)
@@ -1007,6 +1043,7 @@ impl Into<ExportOptions> for ExportEntryLinkDto {
                 .title_suffix_ua
                 .filter(|_| self.add_title_suffix_ua)
                 .filter(|s| !s.trim().is_empty()),
+            title_replacements: parse_replacements(self.title_replacements),
             only_available: self.only_available,
             discount: self
                 .discount_duration

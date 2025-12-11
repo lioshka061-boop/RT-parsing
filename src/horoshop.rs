@@ -44,14 +44,7 @@ pub struct CsvEntry {
 impl CsvEntry {
     pub fn apply_opts(self, opts: &ExportOptions) -> Self {
         Self {
-            title: match &opts.title_suffix {
-                Some(suffix) => format!(
-                    "{} {}",
-                    crate::xlsx::format_replica(&self.title),
-                    suffix.trim()
-                ),
-                None => self.title,
-            },
+            title: crate::xlsx::build_title(opts, &self.title, false),
             price: self
                 .price
                 .map(|p| p * opts.adjust_price.unwrap_or(Decimal::ONE)),

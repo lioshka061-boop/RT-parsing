@@ -1,8 +1,17 @@
+{% if let Some(prefix) = opts.title_prefix %}
+<span class="feature">Префикс "{{prefix}}"</span>
+{% endif %}
+{% if let Some(prefix) = opts.title_prefix_ua %}
+<span class="feature">Префикс UA "{{prefix}}"</span>
+{% endif %}
 {% if let Some(suffix) = opts.title_suffix %}
-<span class="feature">Приставка "{{suffix}}"</span>
+<span class="feature">Суффикс "{{suffix}}"</span>
 {% endif %}
 {% if let Some(suffix) = opts.title_suffix_ua %}
-<span class="feature">Приставка UA "{{suffix}}"</span>
+<span class="feature">Суффикс UA "{{suffix}}"</span>
+{% endif %}
+{% if let Some(repls) = opts.title_replacements %}
+<span class="feature">Замены заголовка ({{repls.len()}})</span>
 {% endif %}
 {% if opts.only_available %}
 <span class="feature">Только в наличии</span>

@@ -1,11 +1,11 @@
 use actix::prelude::*;
 use derive_more::Display;
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
+pub mod access;
 pub mod category;
 pub mod product;
 pub mod shop;
-pub mod access;
 pub mod subscription;
 pub mod watermark;
 

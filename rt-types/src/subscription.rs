@@ -6,8 +6,8 @@ use typesafe_repository::macros::Id;
 use typesafe_repository::{GetIdentity, Identity, IdentityBy, IdentityOf, RefIdentity};
 use uuid::Uuid;
 
-pub mod service;
 pub mod repository;
+pub mod service;
 
 pub type SubscriptionVersion = u32;
 

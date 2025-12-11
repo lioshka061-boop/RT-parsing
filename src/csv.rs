@@ -37,16 +37,7 @@ pub async fn write_dto_map(
                 } else {
                     p.title.clone()
                 };
-                let formatted = if opts.format_years {
-                    format_years(&base)
-                } else {
-                    base
-                };
-                let formatted = format_replica(&formatted);
-                match &opts.title_suffix {
-                    Some(suffix) => format!("{formatted} {}", suffix.trim()),
-                    None => formatted,
-                }
+                crate::xlsx::build_title(opts, &base, false)
             })
         })
         .collect();
@@ -61,12 +52,7 @@ pub async fn write_dto_map(
                     .map(|t| t.title.clone())
                     .filter(|t| !t.is_empty())
                     .unwrap_or_else(|| p.title.clone());
-                match &opts.title_suffix_ua {
-                    Some(suffix) => {
-                        format!("{} {}", format_replica(&title), suffix.trim())
-                    }
-                    None => title,
-                }
+                crate::xlsx::build_title(opts, &title, true)
             })
         })
         .collect();

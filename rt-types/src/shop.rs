@@ -147,7 +147,7 @@ impl ExportEntry {
             || self
                 .dt_parsing
                 .as_ref()
-            .is_some_and(|o| o.options.watermarks.iter().any(|(w, _)| w == watermark))
+                .is_some_and(|o| o.options.watermarks.iter().any(|(w, _)| w == watermark))
             || self
                 .maxton_parsing
                 .as_ref()
@@ -390,8 +390,12 @@ impl ExportEntryLink {
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq, Hash, Default, PartialOrd, Ord)]
 pub struct ExportOptions {
+    pub title_prefix: Option<String>,
+    pub title_prefix_ua: Option<String>,
     pub title_suffix: Option<String>,
     pub title_suffix_ua: Option<String>,
+    #[serde(default)]
+    pub title_replacements: Option<Vec<(String, String)>>,
     #[serde(default = "bool_false")]
     pub only_available: bool,
     pub discount: Option<Discount>,

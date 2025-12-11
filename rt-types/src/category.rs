@@ -1,6 +1,6 @@
 use crate::product::Product;
-use async_trait::async_trait;
 use crate::shop::Shop;
+use async_trait::async_trait;
 use lazy_regex::regex;
 use regex::Regex;
 use serde::{Deserialize, Serialize};

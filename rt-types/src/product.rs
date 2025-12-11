@@ -2,8 +2,8 @@ use crate::category::Category;
 use crate::Availability;
 use rust_decimal::Decimal;
 use std::collections::HashMap;
-use typesafe_repository::{Identity, IdentityOf, RefIdentity, Selector, SelectBy};
 use typesafe_repository::macros::Id;
+use typesafe_repository::{Identity, IdentityOf, RefIdentity, SelectBy, Selector};
 use xxhash_rust::xxh64::xxh64;
 
 pub struct AvailableSelector;

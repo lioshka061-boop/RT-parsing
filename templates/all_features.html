@@ -107,11 +107,27 @@
 <hr>
 <h3>Заголовок</h3>
 <div class="group">
+	<input type="checkbox" name="add_title_prefix" id="title_prefix_{{link_hash}}" {% if 
+												   opts.title_prefix.is_some() 
+												   %}checked {% endif %} />
+	<label for="title_prefix_{{link_hash}}">
+		Префикс (до заголовка)
+	</label>
+	<div class="checkbox-group">
+		<label>
+			Текст
+			<input type="text" name="title_prefix" {% if let Some(prefix) = 
+							   opts.title_prefix %}value="{{prefix}}"{% endif 
+							   %} />
+		</label>
+	</div>
+</div>
+<div class="group">
 	<input type="checkbox" name="add_title_suffix" id="title_suffix_{{link_hash}}" {% if 
 												   opts.title_suffix.is_some() 
 												   %}checked {% endif %} />
 	<label for="title_suffix_{{link_hash}}">
-		Приставка
+		Суффикс (после заголовка)
 	</label>
 	<div class="checkbox-group">
 		<label>
@@ -123,11 +139,27 @@
 	</div>
 </div>
 <div class="group">
+	<input type="checkbox" name="add_title_prefix_ua" 
+		   id="title_prefix_ua_{{link_hash}}" {% if 
+		   opts.title_prefix_ua.is_some() %}checked {% endif %} />
+	<label for="title_prefix_ua_{{link_hash}}">
+		Префикс (UA)
+	</label>
+	<div class="checkbox-group">
+		<label>
+			Текст
+			<input type="text" name="title_prefix_ua" {% if let Some(prefix) = 
+							   opts.title_prefix_ua %}value="{{prefix}}"{% endif 
+							   %} />
+		</label>
+	</div>
+</div>
+<div class="group">
 	<input type="checkbox" name="add_title_suffix_ua" 
 		   id="title_suffix_ua_{{link_hash}}" {% if 
 		   opts.title_suffix_ua.is_some() %}checked {% endif %} />
 	<label for="title_suffix_ua_{{link_hash}}">
-		Приставка (UA)
+		Суффикс (UA)
 	</label>
 	<div class="checkbox-group">
 		<label>
@@ -137,6 +169,13 @@
 							   %} />
 		</label>
 	</div>
+</div>
+<div class="group">
+	<label>
+		Замены слов в заголовке (по строкам: старое=новое)
+		<textarea name="title_replacements" rows="4" placeholder="(нерж)=нержавейка&#10;рр=года">{% if let Some(repls) = opts.title_replacements %}{% for (from,to) in repls %}{{from}}={{to}}
+{% endfor %}{% endif %}</textarea>
+	</label>
 </div>
 <hr>
 <h3>Скидка</h3>

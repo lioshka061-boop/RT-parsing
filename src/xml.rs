@@ -1,4 +1,4 @@
-use crate::xlsx::{format_replica, format_years, trim_images};
+use crate::xlsx::{format_replica, trim_images};
 use async_zip::tokio::write::ZipFileWriter;
 use async_zip::{Compression, DeflateOption, ZipEntryBuilder};
 use quick_xml::escape::escape;
@@ -140,17 +140,8 @@ pub async fn write_dto_map(
                 },
             ];
 
-            let title_fn = |s: &str, suffix: Option<&String>, fmt_years: bool| -> String {
-                let title = if fmt_years {
-                    format_years(s)
-                } else {
-                    s.to_string()
-                };
-                let title = format_replica(&title);
-                match suffix {
-                    Some(suffix) => escape(&format!("{title} {suffix}")).to_string(),
-                    None => escape(&title).to_string(),
-                }
+            let title_fn = |s: &str, opts: &ExportOptions, is_ua: bool| -> String {
+                escape(&crate::xlsx::build_title(opts, s, is_ua)).to_string()
             };
 
             let description_fn = format_replica;
@@ -182,17 +173,13 @@ pub async fn write_dto_map(
                         .create_element("name")
                         .write_text_content_async(BytesText::new(&title_fn(
                             base_title_ru,
-                            o.title_suffix.as_ref(),
-                            o.format_years,
+                            o,
+                            false,
                         )))
                         .await?;
                     writer
                         .create_element("name_ua")
-                        .write_text_content_async(BytesText::new(&title_fn(
-                            base_title_ua,
-                            o.title_suffix_ua.as_ref(),
-                            o.format_years,
-                        )))
+                        .write_text_content_async(BytesText::new(&title_fn(base_title_ua, o, true)))
                         .await?;
                     writer
                         .create_element("barcode")

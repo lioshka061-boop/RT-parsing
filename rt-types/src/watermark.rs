@@ -1,21 +1,21 @@
-use typesafe_repository::{Repository, IdentityOf, Identity, GetIdentity, IdentityBy};
-use typesafe_repository::async_ops::{Get, Add, Remove, ListBy};
+use crate::product::Product;
+use crate::shop::ExportOptions;
+use crate::shop::Shop;
+use anyhow::anyhow;
+use derive_more::Display;
+use itertools::Itertools;
 use photon_rs::transform::SamplingFilter;
 use photon_rs::PhotonImage;
-use crate::shop::ExportOptions;
 use rust_decimal::prelude::*;
-use anyhow::anyhow;
-use crate::product::Product;
-use std::hash::BuildHasher;
-use itertools::Itertools;
-use rust_decimal_macros::dec;
-use derive_more::Display;
-use std::hash::{Hash, Hasher};
-use xxhash_rust::xxh3::Xxh3;
-use serde::{Serialize, Deserialize};
 use rust_decimal::Decimal;
+use rust_decimal_macros::dec;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use crate::shop::Shop;
+use std::hash::BuildHasher;
+use std::hash::{Hash, Hasher};
+use typesafe_repository::async_ops::{Add, Get, ListBy, Remove};
+use typesafe_repository::{GetIdentity, Identity, IdentityBy, IdentityOf, Repository};
+use xxhash_rust::xxh3::Xxh3;
 
 pub mod service;
 
