@@ -50,6 +50,33 @@
 						<span class="note">{{status}}</span>
 					</div>
 					{% endif %}
+					{% if let Some(p) = export.progress %}
+					<div class="status in_progress progress-inline">
+						<span class="note">{{p.stage}} ({{p.done}} / {{p.total}})</span>
+					</div>
+					{% endif %}
+					{% if formats.len() > 0 %}
+					<div class="inline-download quick-download" data-export="{{hash}}">
+						<select class="quick-download__select">
+							{% for (format, info) in formats %}
+							<option value="/export/{{shop.id}}/{{info.name}}">
+								{{format.to_string()}} ({{info.format_size()}})
+							</option>
+							{% endfor %}
+						</select>
+						<button class="button small quick-download__btn" data-action="download" title="Скачать выбранный файл">
+							<i class="ri-download-cloud-2-line"></i>
+						</button>
+						<button class="button small quick-download__btn" data-action="copy" title="Скопировать ссылку">
+							<i class="ri-link"></i>
+						</button>
+						{% if let Some((_, info)) = formats.first() %}
+						<span class="last-modified-inline">
+							<i class="ri-time-line"></i> {{info.format_modified_ago()}} назад
+						</span>
+						{% endif %}
+					</div>
+					{% endif %}
 				</summary>
 				<div>
 					{% if let Some(opts) = e.dt_parsing %}
@@ -164,26 +191,6 @@
 					{% endif %}
 					{% endif %}
 				</form>
-				<details class="download-button {% if let ExportStatus::Success 
-								= status %}{% else %}disabled{% endif %}">
-					<summary class="button">
-						<i class="ri-download-2-line"></i>
-					</summary>
-					<div class="menu">
-						{% for (format, info) in formats %}
-						<a href="/export/{{shop.id}}/{{info.name}}">
-							<i class="ri-file-download-line"></i>
-							{{format.to_string()}} ({{info.format_size()}}) 
-						</a>
-						{% endfor %}
-						{% if let Some((_, info)) = formats.first() %}
-						<span class="last-modified">
-							<i class="ri-refresh-fill"></i> 
-							{{info.format_modified_ago()}}&nbsp;назад
-						</span>
-						{% endif %}
-					</div>
-				</details>
 				<a class="button edit" 
 				   href="/shop/{{shop.id}}/export_info/{{hash}}">
 					<i class="ri-settings-3-line"></i>
@@ -245,15 +252,22 @@
 
 			if (!Array.isArray(data)) return;
 			const signature = data
-				.map(d => `${d.hash}:${parseStatus(d.status)}:${d.ready}`)
+				.map(d => `${d.hash}:${parseStatus(d.status)}:${d.ready}:${(d.progress && d.progress.done) || 0}:${(d.progress && d.progress.total) || 0}`)
 				.join('|');
 			const statuses = data.map(d => parseStatus(d.status));
 			const working = statuses.some(s => s === 'InProgress' || s === 'Enqueued');
 			const failed = statuses.filter(s => s === 'Failure').length;
 
 			if (working) {
-				const count = statuses.filter(s => s === 'InProgress' || s === 'Enqueued').length;
-				setIndicator('working', `Экспорт обновляется (${count})`);
+				const inProgress = data.find(d => parseStatus(d.status) === 'InProgress');
+				if (inProgress && inProgress.progress) {
+					const { done, total, stage } = inProgress.progress;
+					const percent = total ? Math.round((Math.min(done, total) / total) * 100) : 0;
+					setIndicator('working', `${stage} (${done}/${total}, ${percent}%)`);
+				} else {
+					const count = statuses.filter(s => s === 'InProgress' || s === 'Enqueued').length;
+					setIndicator('working', `Экспорт обновляется (${count})`);
+				}
 			} else if (failed) {
 				setIndicator('error', `Ошибка экспорта (${failed})`);
 			} else {
@@ -270,6 +284,36 @@
 		setIndicator('idle', 'Проверяем статус…');
 		refresh();
 		setInterval(refresh, 3500);
+	})();
+
+	(() => {
+		document.querySelectorAll('.quick-download').forEach(block => {
+			const select = block.querySelector('.quick-download__select');
+			const downloadBtn = block.querySelector('[data-action="download"]');
+			const copyBtn = block.querySelector('[data-action="copy"]');
+			if (!select) return;
+
+			const getUrl = () => select.value;
+
+			downloadBtn?.addEventListener('click', (e) => {
+				e.preventDefault();
+				const url = getUrl();
+				if (url) window.location.href = url;
+			});
+
+			copyBtn?.addEventListener('click', async (e) => {
+				e.preventDefault();
+				const url = getUrl();
+				if (!url) return;
+				try {
+					await navigator.clipboard.writeText(new URL(url, window.location.origin).toString());
+					copyBtn.classList.add('copied');
+					setTimeout(() => copyBtn.classList.remove('copied'), 1200);
+				} catch (_err) {
+					console.warn('Clipboard is unavailable');
+				}
+			});
+		});
 	})();
 	</script>
 {% endblock %}

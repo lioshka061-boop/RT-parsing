@@ -28,8 +28,14 @@ impl Get<Shop> for FileSystemShopRepository {
     async fn get_one(&self, id: &IdentityOf<Shop>) -> Result<Option<Shop>, anyhow::Error> {
         match read_shop(&id) {
             Ok(shop) => Ok(Some(shop)),
-            Err(err) if err.kind() == std::io::ErrorKind::NotFound => Ok(None),
-            Err(err) => Err(err.into()),
+            Err(err) => {
+                if let Some(io_err) = err.downcast_ref::<std::io::Error>() {
+                    if io_err.kind() == std::io::ErrorKind::NotFound {
+                        return Ok(None);
+                    }
+                }
+                Err(err)
+            }
         }
     }
 }

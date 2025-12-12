@@ -1291,6 +1291,20 @@ impl ExportService {
             export: HashMap::new(),
         }
     }
+
+    async fn set_progress(
+        export: &Arc<RwLock<Export>>,
+        stage: impl Into<String>,
+        done: usize,
+        total: usize,
+    ) {
+        let mut ex = export.write().await;
+        ex.progress = Some(ProgressInfo {
+            stage: stage.into(),
+            done,
+            total,
+        });
+    }
     pub async fn start_export_cycle(
         client: Client,
         export: Arc<RwLock<Export>>,
@@ -1381,6 +1395,7 @@ impl ExportService {
                     category_repo.clone(),
                     trans_repo.clone(),
                     currency_service.clone(),
+                    export.clone(),
                 ),
                 async {
                     let mut export = export.write().await;
@@ -1424,6 +1439,9 @@ impl ExportService {
             {
                 let mut export = export.write().await;
                 export.status = status;
+                if let ExportStatus::Success | ExportStatus::Failure(_) = export.status {
+                    export.progress = None;
+                }
             }
             tokio::select! {
                 _ = tokio::time::sleep(entry.update_rate) => (),
@@ -1516,11 +1534,19 @@ pub struct Cleanup;
 #[rtype(result = "Result<(), anyhow::Error>")]
 pub struct SuspendByShop(pub IdentityOf<Shop>, pub bool);
 
+#[derive(Debug, Clone, Serialize)]
+pub struct ProgressInfo {
+    pub stage: String,
+    pub done: usize,
+    pub total: usize,
+}
+
 #[derive(Debug, Clone)]
 pub struct Export {
     pub shop: IdentityOf<Shop>,
     pub status: ExportStatus,
     pub entry: ExportEntry,
+    pub progress: Option<ProgressInfo>,
     start: Arc<Notify>,
     suspend_tx: broadcast::Sender<bool>,
     stop: Arc<Notify>,
@@ -1563,6 +1589,7 @@ impl Actor for ExportService {
                 Arc::new(RwLock::new(Export {
                     shop: *shop,
                     entry: entry.clone(),
+                    progress: None,
                     start: Arc::new(Notify::new()),
                     stop: Arc::new(Notify::new()),
                     suspend_tx,
@@ -1777,6 +1804,7 @@ impl Handler<Add> for ExportService {
         let e = Arc::new(RwLock::new(Export {
             shop,
             entry: entry.clone(),
+            progress: None,
             start: Arc::new(Notify::new()),
             stop: Arc::new(Notify::new()),
             suspend_tx,
@@ -2046,7 +2074,10 @@ pub async fn do_export(
     category_repo: Arc<dyn category::CategoryRepository>,
     trans_repo: Arc<dyn tt::product::TranslationRepository>,
     currency_service: Addr<CurrencyService>,
+    export_handle: Arc<RwLock<Export>>,
 ) -> Result<(), ExportError> {
+    const TOTAL_STEPS: usize = 5;
+    ExportService::set_progress(&export_handle, "Сбор данных", 0, TOTAL_STEPS).await;
     match tokio::fs::create_dir_all(format!("/tmp/export/{shop}")).await {
         Ok(_) => (),
         Err(err) if err.kind() == std::io::ErrorKind::AlreadyExists => (),
@@ -2619,6 +2650,14 @@ pub async fn do_export(
     let i = std::time::Instant::now();
     let id = shop_id.to_string();
 
+    ExportService::set_progress(
+        &export_handle,
+        format!("Подготовка товаров ({count} шт.)"),
+        1,
+        TOTAL_STEPS,
+    )
+    .await;
+
     let res = rt_types::watermark::apply_to_product_map(res, shop_id, &Lazy::force(&SELF_ADDR))?;
     let res: HashMap<_, _> = res
         .into_iter()
@@ -2650,6 +2689,14 @@ pub async fn do_export(
         .collect();
     let r = res.clone();
 
+    ExportService::set_progress(
+        &export_handle,
+        "Записываем XLSX".to_string(),
+        2,
+        TOTAL_STEPS,
+    )
+    .await;
+
     tokio::task::spawn_blocking(move || {
         crate::xlsx::write_xlsx_dto_map(&f, r, c, &id)?;
         Ok::<_, anyhow::Error>(())
@@ -2661,11 +2708,23 @@ pub async fn do_export(
 
     let xml_filename = format!("{}", file_path(entry.file_name(FileFormat::Xml)));
     let i = std::time::Instant::now();
+
+    ExportService::set_progress(&export_handle, "Записываем XML".to_string(), 3, TOTAL_STEPS).await;
+
     crate::xml::write_dto_map(&xml_filename, &res, categories, shop_id).await?;
     let xml = i.elapsed().as_millis();
 
     let horoshop_filename = format!("{}", file_path(entry.file_name(FileFormat::HoroshopCsv)));
     let i = std::time::Instant::now();
+
+    ExportService::set_progress(
+        &export_handle,
+        "Horoshop CSV/Categories".to_string(),
+        4,
+        TOTAL_STEPS,
+    )
+    .await;
+
     crate::horoshop::export_csv(horoshop_filename.clone(), &res, category_repo.clone()).await?;
 
     let horoshop_filename = format!(
@@ -2677,6 +2736,9 @@ pub async fn do_export(
     let horoshop = i.elapsed().as_millis();
     let i = std::time::Instant::now();
     let csv_filename = format!("{}", file_path(entry.file_name(FileFormat::Csv)));
+
+    ExportService::set_progress(&export_handle, "Генерируем CSV".to_string(), 5, TOTAL_STEPS).await;
+
     crate::csv::write_dto_map(&csv_filename, res, shop_id).await?;
     log::info!(
         "Time:\nxlsx: {xlsx}ms\nxml: {xml}ms\ncsv: {}ms\nhoroshop: {horoshop}ms",
@@ -2711,5 +2773,12 @@ pub async fn do_export(
     if let Err(err) = res {
         log::error!("Unable to remove tmp file: {err}");
     }
+    ExportService::set_progress(
+        &export_handle,
+        "Готово".to_string(),
+        TOTAL_STEPS,
+        TOTAL_STEPS,
+    )
+    .await;
     Ok(())
 }

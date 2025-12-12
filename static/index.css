@@ -104,6 +104,41 @@ h3 {
 	gap: 0.5em;
 }
 
+.inline-download {
+	display: flex;
+	align-items: center;
+	gap: 0.35em;
+	padding: 0 .35em;
+}
+
+.inline-download select {
+	background: var(--panel);
+	border: 1px solid var(--border);
+	color: var(--text);
+	border-radius: 10px;
+	padding: 0.35em 0.6em;
+	height: 36px;
+	min-width: 180px;
+}
+
+.inline-download .button.small {
+	width: 36px;
+	height: 36px;
+	border-radius: 10px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.last-modified-inline {
+	font-size: 0.9em;
+	color: var(--muted-text, rgba(255,255,255,0.7));
+	display: inline-flex;
+	align-items: center;
+	gap: 0.35em;
+	padding-left: 0.4em;
+}
+
 .group-wrapper .group {
 	flex-grow: 1;
 	background: var(--panel-2);
@@ -305,40 +340,6 @@ button.delete {
 
 .download-button a:hover {
 	background: rgba(106,182,255,0.1) !important;
-}
-
-.live-status {
-	position: fixed;
-	right: 1.25rem;
-	bottom: 1.25rem;
-	padding: 0.65em 0.95em;
-	border-radius: 0.85em;
-	border: 1px solid var(--border);
-	background: var(--panel-2);
-	color: var(--text);
-	box-shadow: var(--shadow);
-	opacity: 0;
-	pointer-events: none;
-	transition: opacity .2s ease-in-out;
-	font-weight: 600;
-}
-
-.live-status.show {
-	opacity: 1;
-}
-
-.live-status[data-state="working"] {
-	border-color: var(--accent);
-	color: var(--text);
-}
-
-.live-status[data-state="error"] {
-	border-color: #ff6b6b;
-	color: #ff9c9c;
-}
-
-.live-status[data-state="idle"] {
-	color: var(--muted);
 }
 
 @media screen and (orientation: portrait) {

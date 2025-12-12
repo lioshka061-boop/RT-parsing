@@ -592,6 +592,7 @@ struct ExportStatusJson {
     status: export::ExportStatus,
     ready: bool,
     file_name: String,
+    progress: Option<export::ProgressInfo>,
 }
 
 #[get("/shop/{shop_id}/status")]
@@ -617,6 +618,7 @@ async fn export_status_json(
             status: export.status().clone(),
             ready,
             file_name,
+            progress: export.progress.clone(),
         });
     }
     Ok(HttpResponse::Ok().json(res))
