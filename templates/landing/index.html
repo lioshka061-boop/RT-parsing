@@ -109,38 +109,20 @@
 			<a class="ghost" href="#new">Дивитись новинки</a>
 		</div>
 		<div class="cat-grid">
+			{% if categories.is_empty() %}
 			<div class="cat-card accent">
-				<div class="text">
-					<h3>ABS чорний глянець</h3>
-					<p>Бестселери з миттєвою наявністю.</p>
-				</div>
-				<span class="dot">362</span>
+				<h3>Категорії ще не завантажені</h3>
+				<p>Додайте їх в адмінці — тут з'явиться список.</p>
 			</div>
-			<div class="cat-card">
-				<h3>Вуглецеве волокно</h3>
-				<p>Полегшені та міцні елементи.</p>
-				<span class="dot">128</span>
+			{% else %}
+			{% for c in categories.iter().take(6) %}
+			<div class="cat-card {% if loop.index0 == 0 %}accent{% endif %}">
+				<h3>{{ c.name }}</h3>
+				<p>Колекція під ваш проєкт.</p>
+				<span class="dot">ID {{ c.id }}</span>
 			</div>
-			<div class="cat-card">
-				<h3>Спойлери</h3>
-				<p>Аеродинаміка та характер.</p>
-				<span class="dot">214</span>
-			</div>
-			<div class="cat-card">
-				<h3>Готові пакети</h3>
-				<p>Комплекти під ключ.</p>
-				<span class="dot">54</span>
-			</div>
-			<div class="cat-card">
-				<h3>Пороги / дифузори</h3>
-				<p>Захист і стиль бокових ліній.</p>
-				<span class="dot">179</span>
-			</div>
-			<div class="cat-card">
-				<h3>Аксесуари</h3>
-				<p>Сітки, кріплення, декор.</p>
-				<span class="dot">301</span>
-			</div>
+			{% endfor %}
+			{% endif %}
 		</div>
 	</section>
 
@@ -157,21 +139,41 @@
 			</div>
 		</div>
 		<div class="product-grid">
-			{% for i in 0..4 %}
+			{% if products.is_empty() %}
+				<div class="product-card">
+					<div class="thumb">
+						<span class="tag">нема фото</span>
+					</div>
+					<div class="info">
+						<h4>Товари поки не підтягнуті</h4>
+						<p class="meta">Додайте постачальників і запустіть парсинг.</p>
+					</div>
+				</div>
+			{% else %}
+			{% for p in products %}
 			<div class="product-card">
-				<div class="thumb thumb-{{i}}">
+				<div class="thumb" {% if let Some(img) = p.images.first() %}style="background-image: url('{{img}}'); background-size: cover; background-position: center;"{% endif %}>
 					<span class="tag">нове</span>
 				</div>
 				<div class="info">
-					<h4>Комплект Splitter V{{i + 1}} • Skoda Superb</h4>
-					<p class="meta">ABS Gloss • Кріплення в комплекті</p>
+					<h4>{{ p.title }}</h4>
+					<p class="meta">{{ p.format_model().unwrap_or(p.model.0.clone()) }} • {{ p.brand }}</p>
 					<div class="price-row">
-						<span class="price">2 97{{i}}0 грн</span>
-						<button class="ghost"><i class="ri-shopping-bag-line"></i></button>
+						<span class="price">
+							{% if let Some(price) = p.price %}
+								{{ price }} грн
+							{% else %}
+								Ціна уточнюється
+							{% endif %}
+						</span>
+						<button class="ghost" title="Відкрити оригінал" onclick="window.open('{{p.url.0}}','_blank')">
+							<i class="ri-link"></i>
+						</button>
 					</div>
 				</div>
 			</div>
 			{% endfor %}
+			{% endif %}
 		</div>
 	</section>
 
