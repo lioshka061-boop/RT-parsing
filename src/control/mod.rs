@@ -775,20 +775,67 @@ struct ExportInfoQuery {
 #[derive(Template)]
 #[template(path = "export_info.html")]
 struct ExportInfoPage {
-    export: ExportView,
+    export: ExportViewDto,
     hash: String,
     with_new_link: bool,
     descriptions: Vec<String>,
-    shop: Shop,
+    shop: ShopDto,
     user: UserCredentials,
     watermarks: Vec<String>,
-    groups: Vec<WatermarkGroup>,
+    groups: Vec<WatermarkGroupDto>,
 }
 
 #[derive(Serialize, Clone)]
-struct ExportView {
-    status: export::ExportStatus,
+struct ExportViewDto {
+    status: String,
     entry: ExportEntry,
+}
+
+impl From<export::Export> for ExportViewDto {
+    fn from(e: export::Export) -> Self {
+        Self {
+            status: e.status().to_string(),
+            entry: e.entry().clone(),
+        }
+    }
+}
+
+#[derive(Serialize, Clone)]
+struct ShopDto {
+    id: String,
+    name: String,
+    is_suspended: bool,
+}
+
+impl From<Shop> for ShopDto {
+    fn from(s: Shop) -> Self {
+        Self {
+            id: s.id.to_string(),
+            name: s.name,
+            is_suspended: s.is_suspended,
+        }
+    }
+}
+
+#[derive(Serialize, Clone)]
+struct WatermarkGroupDto {
+    id: String,
+    name: String,
+}
+
+impl From<WatermarkGroup> for WatermarkGroupDto {
+    fn from(w: WatermarkGroup) -> Self {
+        Self {
+            id: w.id().1.to_string(),
+            name: w.name,
+        }
+    }
+}
+
+impl WatermarkGroupDto {
+    pub fn id(&self) -> &str {
+        &self.id
+    }
 }
 
 #[get("/shop/{shop_id}/export_info/{hash}")]
@@ -805,10 +852,7 @@ async fn export_info(
         .await
         .context("Unable to send message to ExportService")?;
     let export = match export {
-        Some(export) => Some(ExportView {
-            status: export.status().clone(),
-            entry: export.entry().clone(),
-        }),
+        Some(export) => Some(ExportViewDto::from(export)),
         None => None,
     };
     let groups = watermark_group_repository.list_by(&shop_id).await?;
@@ -874,14 +918,14 @@ async fn export_info(
         .map_err(ShopControllerError::with(&user, &shop))?;
     match export {
         Some(export) => render_template(ExportInfoPage {
-            export,
+            export: export.into(),
             hash,
             with_new_link: q.with_new_link.is_some(),
             descriptions,
-            shop,
-            user,
+            shop: shop.into(),
+            user: user.into(),
             watermarks,
-            groups,
+            groups: groups.into_iter().map(Into::into).collect(),
         }),
         None => Ok(see_other(&format!("/shop/{shop_id}"))),
     }

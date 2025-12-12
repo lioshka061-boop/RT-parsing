@@ -329,10 +329,10 @@
 					</optgroup>
 					<optgroup label="Группы">
 					{% for g in groups %}
-					{% if opts.has_watermark(g.id().0.to_string().borrow()) %}
-					<option selected value="{{g.id().0}}">{{g.name}}</option>
+					{% if opts.has_watermark(g.id()) %}
+					<option selected value="{{g.id()}}">{{g.name}}</option>
 					{% else %}
-					<option value="{{g.id().0}}">{{g.name}}</option>
+					<option value="{{g.id()}}">{{g.name}}</option>
 					{% endif %}
 					{% endfor %}
 					</optgroup>

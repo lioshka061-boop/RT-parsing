@@ -408,10 +408,7 @@ impl TryInto<rt_types::product::Product> for Product {
             brand: self.brand,
             model: self.model.0,
             category: None,
-            available: match self.available {
-                Availability::NotAvailable => Availability::OnOrder,
-                x => x,
-            },
+            available: self.available,
             vendor: vendor.into(),
             keywords,
             images,

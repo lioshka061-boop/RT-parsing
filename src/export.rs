@@ -2411,13 +2411,17 @@ pub async fn do_export(
         })
         .unwrap_or((None, None, None, None, None));
     if let Some((options, products)) = entry.dt_parsing.as_ref().zip(dt) {
+        // DT items should always carry vendor info into notes, even if the flag
+        // was not set explicitly.
+        let mut opts = options.options.clone();
+        opts.add_vendor = true;
         let dto = rt_types::product::convert(products.into_iter());
-        let dto: Vec<_> = if options.options.categories {
+        let dto: Vec<_> = if opts.categories {
             category::assign_categories(dto, &categories).collect()
         } else {
             dto.collect()
         };
-        let mut dto = match options.options.convert_to_uah {
+        let mut dto = match opts.convert_to_uah {
             true => dto
                 .into_iter()
                 .map(|mut i| {
@@ -2430,10 +2434,10 @@ pub async fn do_export(
                 .collect(),
             false => dto,
         };
-        if let Some(entry) = res.get_mut(&options.options) {
+        if let Some(entry) = res.get_mut(&opts) {
             entry.append(&mut dto);
         } else {
-            res.insert(options.options.clone(), dto);
+            res.insert(opts, dto);
         }
     }
     if let Some((options, products)) = entry.jgd_parsing.as_ref().zip(jgd) {

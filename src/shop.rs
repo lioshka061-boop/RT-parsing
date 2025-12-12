@@ -26,7 +26,11 @@ impl Repository<Shop> for FileSystemShopRepository {
 #[async_trait]
 impl Get<Shop> for FileSystemShopRepository {
     async fn get_one(&self, id: &IdentityOf<Shop>) -> Result<Option<Shop>, anyhow::Error> {
-        Ok(Some(read_shop(&id)?))
+        match read_shop(&id) {
+            Ok(shop) => Ok(Some(shop)),
+            Err(err) if err.kind() == std::io::ErrorKind::NotFound => Ok(None),
+            Err(err) => Err(err.into()),
+        }
     }
 }
 
@@ -34,6 +38,7 @@ impl Get<Shop> for FileSystemShopRepository {
 impl Save<Shop> for FileSystemShopRepository {
     async fn save(&self, shop: Shop) -> Result<(), anyhow::Error> {
         let path = format!("{CONFIG_DIR}/{}.yml", shop.id);
+        tokio::fs::create_dir_all(CONFIG_DIR).await?;
         tokio::fs::write(&path, serde_json::to_string_pretty(&shop)?).await?;
         let meta = tokio::fs::metadata(&path).await?;
         let mut perm = meta.permissions();
