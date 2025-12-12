@@ -261,37 +261,60 @@
 	{% if let Some(links) = export.entry.links %}
 	{% for (i, l) in links.iter().enumerate() %}
 	{% let link_hash = l.hash_with_index(i.into()) -%}
-	<div class="import group">
-		<form id="update_{{link_hash}}"
-			  action="/shop/{{shop.id}}/export_info/{{hash}}/{{link_hash}}" 
-			  method="POST">
+	<details class="import collapsible">
+		<summary>
 			<h2>{{ l.vendor_name() }}</h2>
-			<div class="group">
-				<label for="vendor_name">Название поставщика</label>
-				<input id="vendor_name" type="text" name="vendor_name" {%if let 
-													Some(vendor) = l.vendor_name 
-													%}value="{{vendor}}"{% endif %}
-													placeholder=
-													"{{crate::control::parse_vendor(l.link)}} (сгенерировано автоматически)"
-													>
-				<div class="placeholder"></div>
+			<div class="badges">
+				{% if let Some(opts) = l.options %}
+					{% if opts.only_available %}<span class="pill">Только в наличии</span>{% endif %}
+					{% if opts.add_vendor %}<span class="pill">Поставщик в заметках</span>{% endif %}
+					{% if opts.categories %}<span class="pill">Категории</span>{% endif %}
+					{% if opts.convert_to_uah %}<span class="pill">UAH</span>{% endif %}
+					{% if opts.delivery_time.is_some() %}<span class="pill">Доставка {{opts.delivery_time.unwrap()}} дн</span>{% endif %}
+					{% if opts.set_availability.is_some() %}
+						{% match opts.set_availability %}
+							{% when Some with (Availability::Available) %}<span class="pill">Наличие: В наличии</span>
+							{% when Some with (Availability::OnOrder) %}<span class="pill">Наличие: Под заказ</span>
+							{% when Some with (Availability::NotAvailable) %}<span class="pill">Наличие: Нет</span>
+							{% when None %}{% endmatch %}
+					{% endif %}
+					{% if opts.adjust_price.is_some() %}<span class="pill">Цена × {{opts.adjust_price.unwrap()}}</span>{% endif %}
+					{% if opts.discount.is_some() %}<span class="pill">Скидка {{opts.discount.as_ref().unwrap().percent}}%</span>{% endif %}
+				{% endif %}
+				<span class="pill pill-ghost">{{crate::control::parse_vendor(l.link)}}</span>
 			</div>
-			{% if let Some(opts) = l.options %}
-			{% include "all_features.html" %}
-			{% endif %}
-			<div class="group">
-				<label for="link">Ссылка</label>
-				<textarea id="link" name="link">{{l.link}}</textarea>
+		</summary>
+		<div class="collapsible-body">
+			<form id="update_{{link_hash}}"
+				  action="/shop/{{shop.id}}/export_info/{{hash}}/{{link_hash}}" 
+				  method="POST">
+				<div class="group">
+					<label for="vendor_name">Название поставщика</label>
+					<input id="vendor_name" type="text" name="vendor_name" {%if let 
+														Some(vendor) = l.vendor_name 
+														%}value="{{vendor}}"{% endif %}
+														placeholder=
+														"{{crate::control::parse_vendor(l.link)}} (сгенерировано автоматически)"
+														>
+					<div class="placeholder"></div>
+				</div>
+				{% if let Some(opts) = l.options %}
+				{% include "all_features.html" %}
+				{% endif %}
+				<div class="group">
+					<label for="link">Ссылка</label>
+					<textarea id="link" name="link">{{l.link}}</textarea>
+				</div>
+			</form>
+			<form id="remove_{{link_hash}}"
+				  action="/shop/{{shop.id}}/export_info/{{hash}}/{{link_hash}}/remove"
+			method="POST"></form>
+			<div class="buttons">
+				<button class="save" form="update_{{link_hash}}">Сохранить</button>
+				<button class="delete" form="remove_{{link_hash}}">Удалить</button>
 			</div>
-		</form>
-		<form id="remove_{{link_hash}}"
-			  action="/shop/{{shop.id}}/export_info/{{hash}}/{{link_hash}}/remove"
-		method="POST"></form>
-		<div class="buttons">
-			<button class="save" form="update_{{link_hash}}">Сохранить</button>
-			<button class="delete" form="remove_{{link_hash}}">Удалить</button>
 		</div>
-	</div>
+	</details>
 	{% endfor %}
 	{% endif %}
 	{% if with_new_link %}

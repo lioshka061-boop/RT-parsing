@@ -108,6 +108,55 @@ input[type="radio"]:checked:not(.disable) ~ .checkbox-group {
 	flex-flow: column;
 }
 
+.import.collapsible {
+	border: 1px solid var(--border);
+}
+
+.import.collapsible > summary {
+	display: flex;
+	align-items: center;
+	gap: 0.75em;
+	padding: 0.35em 0.2em;
+	cursor: pointer;
+	list-style: none;
+}
+
+.import.collapsible > summary::-webkit-details-marker {
+	display: none;
+}
+
+.import.collapsible > summary h2 {
+	margin: 0;
+}
+
+.collapsible-body {
+	padding-top: 0.5em;
+}
+
+.badges {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.35em;
+}
+
+.pill {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.35em;
+	padding: 0.25em 0.6em;
+	border-radius: 999px;
+	background: rgba(106,182,255,0.15);
+	border: 1px solid var(--border);
+	color: var(--text);
+	font-size: 0.9em;
+}
+
+.pill-ghost {
+	background: transparent;
+	border-style: dashed;
+	opacity: 0.75;
+}
+
 .import hr {
 	width: 100%;
 }

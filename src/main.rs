@@ -272,6 +272,7 @@ async fn main() -> Result<(), anyhow::Error> {
                 TrailingSlash::Trim,
             ))
             .app_data(Data::new(category_repository.clone()))
+            .app_data(Data::new(dt_repo.clone()))
             .app_data(Data::new(Arc::new(dt_service.clone())))
             .app_data(Data::new(Arc::new(tt_service.clone())))
             .app_data(Data::new(Arc::new(export_service.clone())))

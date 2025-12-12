@@ -2,33 +2,34 @@ services:
   rt-parsing:
     build: .
     image: rt-parsing:latest
+    working_dir: /app
+    command: "/app/rt-parsing"
     ports:
       - "8080:8080"
     depends_on:
       db:
         condition: service_healthy
     volumes:
-      - ./watermark:/watermark
-      - ./.env:/.env
-      - ./storage:/storage
-      - ./export:/export
-      - ./description:/description
-      - ./cfg.d:/cfg.d
-      - ./static:/static
-      - ./tt_trans.d:/tt_trans.d
-      - ./watermark.grp.d:/watermark.grp.d
-    command: "./rt-parsing"
+      - ./watermark:/app/watermark
+      - ./.env:/app/.env
+      - ./storage:/app/storage
+      - ./export:/app/export
+      - ./description:/app/description
+      - ./cfg.d:/app/cfg.d
+      - ./static:/app/static
+      - ./tt_trans.d:/app/tt_trans.d
+      - ./watermark.grp.d:/app/watermark.grp.d
     restart: always
   db:
     image: postgres
     restart: always
     hostname: postgres
-    env_file: 
+    env_file:
       - path: .env
     ports:
       - "5432:5432"
     volumes:
-      - ./pgdata:/var/lib/postgresql/data 
+      - ./pgdata:/var/lib/postgresql/data
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U postgres" ]
       interval: 1s

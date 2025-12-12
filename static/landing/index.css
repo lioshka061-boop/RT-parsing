@@ -276,10 +276,15 @@ button.ghost, a.ghost {
 	box-shadow: var(--shadow);
 	position: relative;
 	overflow: hidden;
+	transition: transform .16s ease, box-shadow .2s ease;
 }
 .cat-card.accent {
 	background: linear-gradient(135deg, rgba(231, 78, 62, 0.08), #fff);
 	border-color: rgba(231, 78, 62, 0.2);
+}
+.cat-card:hover {
+	transform: translateY(-4px);
+	box-shadow: 0 16px 40px rgba(15, 23, 42, 0.14);
 }
 .cat-card h3 { margin: 0 0 0.35rem; }
 .cat-card p { margin: 0; color: var(--muted); }
@@ -316,11 +321,17 @@ button.ghost, a.ghost {
 	box-shadow: var(--shadow);
 	display: flex;
 	flex-direction: column;
+	transition: transform .16s ease, box-shadow .2s ease;
+}
+.product-card:hover {
+	transform: translateY(-5px);
+	box-shadow: 0 18px 45px rgba(15, 23, 42, 0.14);
 }
 .thumb {
 	min-height: 160px;
 	background: linear-gradient(145deg, #eceff4, #f8fafc);
 	position: relative;
+	transition: transform .18s ease;
 }
 .thumb .tag {
 	position: absolute;
@@ -348,6 +359,12 @@ button.ghost, a.ghost {
 	margin-top: 0.5rem;
 }
 .price { font-weight: 800; font-size: 1.1rem; }
+button, a.primary, a.ghost {
+	transition: transform .12s ease, box-shadow .15s ease, background .15s ease, color .15s ease;
+}
+button:hover, a.primary:hover, a.ghost:hover {
+	transform: translateY(-2px);
+}
 
 /* Story */
 .story {

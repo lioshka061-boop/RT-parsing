@@ -32,7 +32,7 @@ RUN --mount=type=ssh \
     --mount=type=cache,target=/root/.cargo/registry \
     --mount=type=cache,target=/root/.cargo/git \
     --mount=type=cache,target=/root/.target \
-    cargo install --profile docker --path .
+    cargo install --locked --profile docker --path .
 
 
 # ===============================
