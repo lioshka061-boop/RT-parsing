@@ -155,21 +155,21 @@ impl Save<Product> for SqliteProductRepository {
                 conn.execute(
                     "INSERT OR REPLACE INTO product 
                     (title, description, price, article, model, category, available, url, last_visited, brand, images, upsell) 
-                    VALUES (:title, :description, :price, :article, :model, :category, :available, :url, :last_visited, :brand, :images, :upsell)",
-                    rusqlite::named_params! {
-                        ":title": p.title,
-                        ":description": p.description,
-                        ":price": p.price,
-                        ":article": p.article,
-                        ":model": p.model.0,
-                        ":category": p.category,
-                        ":available": p.available as u8,
-                        ":url": p.url.0,
-                        ":last_visited": p.last_visited,
-                        ":brand": p.brand,
-                        ":images": img,
-                        ":upsell": p.upsell,
-                    },
+                    VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12)",
+                    rusqlite::params![
+                        p.title,
+                        p.description,
+                        p.price,
+                        p.article,
+                        p.model.0,
+                        p.category,
+                        p.available as u8,
+                        p.url.0,
+                        p.last_visited,
+                        p.brand,
+                        img,
+                        p.upsell,
+                    ],
                 )?;
                 Ok(())
             })
