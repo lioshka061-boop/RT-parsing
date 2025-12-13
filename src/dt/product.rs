@@ -153,25 +153,23 @@ impl Save<Product> for SqliteProductRepository {
             .call(move |conn| {
                 let img = p.img_as_str();
                 conn.execute(
-                    "INSERT INTO product 
+                    "INSERT OR REPLACE INTO product 
                     (title, description, price, article, model, category, available, url, last_visited, brand, images, upsell) 
-                    VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12)
-                    ON CONFLICT(article)
-                    DO UPDATE SET title=?1, description=?2, price=?3, model=?5, category=?6, available=?7, url=?8, last_visited=?9, brand=?10, images = ?11, upsell = ?12",
-                    params![
-                        p.title,
-                        p.description,
-                        p.price,
-                        p.article,
-                        p.model.0,
-                        p.category,
-                        p.available as u8,
-                        p.url.0,
-                        p.last_visited,
-                        p.brand,
-                        img,
-                        p.upsell,
-                    ],
+                    VALUES (:title, :description, :price, :article, :model, :category, :available, :url, :last_visited, :brand, :images, :upsell)",
+                    rusqlite::named_params! {
+                        ":title": p.title,
+                        ":description": p.description,
+                        ":price": p.price,
+                        ":article": p.article,
+                        ":model": p.model.0,
+                        ":category": p.category,
+                        ":available": p.available as u8,
+                        ":url": p.url.0,
+                        ":last_visited": p.last_visited,
+                        ":brand": p.brand,
+                        ":images": img,
+                        ":upsell": p.upsell,
+                    },
                 )?;
                 Ok(())
             })
