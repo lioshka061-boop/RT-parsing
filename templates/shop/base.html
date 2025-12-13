@@ -15,6 +15,9 @@
 		   endif %}>
 			<i class="ri-import-line"></i>Импорт
 		</a>
+		<a href="/shop/{{shop.id}}/products" {% if page == "products" %}class="current"{% endif %}>
+			<i class="ri-store-2-line"></i>Товары
+		</a>
 		<a href="/shop/{{shop.id}}/description" {% if page == "description" 
 		   %}class="current"{% endif %}>
 			<i class="ri-article-line"></i>Описания

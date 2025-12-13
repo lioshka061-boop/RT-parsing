@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% block head %}
 <link rel="stylesheet" href="/static/landing/index.css" />
+<script defer src="/static/landing/app.js"></script>
 {% endblock %}
 {% block header %}
 {% let user = crate::control::into_user_option(user) %}
@@ -8,12 +9,13 @@
 	<div class="logo-row">
 		<div class="logo-mark">
 			<div class="mark"></div>
-			<div class="logo-text">
-				<span class="logo-top">RT AUTO</span>
-				<span class="logo-sub">design & tuning</span>
-			</div>
+		<div class="logo-text">
+				<span class="logo-top">O&P Tuning</span>
+				<span class="logo-sub">design & aerodynamics</span>
 		</div>
-		<nav>
+		</div>
+		<button class="menu-toggle" aria-label="Меню"><i class="ri-menu-line"></i></button>
+		<nav class="main-nav">
 			<a href="#offer">Каталог</a>
 			<a href="#new">Новинки</a>
 			<a href="#story">Як ми працюємо</a>
@@ -151,7 +153,7 @@
 				</div>
 			{% else %}
 			{% for p in products %}
-			<div class="product-card">
+			<a class="product-card" href="/product/{{ p.slug() }}">
 				<div class="thumb" {% if let Some(img) = p.images.first() %}style="background-image: url('{{img}}'); background-size: cover; background-position: center;"{% endif %}>
 					<span class="tag">нове</span>
 				</div>
@@ -171,7 +173,7 @@
 						</button>
 					</div>
 				</div>
-			</div>
+			</a>
 			{% endfor %}
 			{% endif %}
 		</div>

@@ -1,0 +1,137 @@
+{% extends "shop/base.html" %}
+{% block head %}
+{% let page = "products" %}
+<style>
+.products-admin {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+	gap: 16px;
+}
+.product-edit {
+	background: #111827;
+	border: 1px solid #1f2937;
+	border-radius: 16px;
+	padding: 14px;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+.product-edit header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 8px;
+}
+.pill {
+	border-radius: 999px;
+	padding: 2px 8px;
+	font-size: 12px;
+	background: #1f2937;
+	border: 1px solid #293548;
+}
+.pill.green { background:#0f766e; border-color:#0f766e; color:#d1fae5; }
+.pill.yellow { background:#92400e; border-color:#f59e0b; color:#fef3c7; }
+.thumb {
+	width: 100%;
+	height: 140px;
+	border-radius: 12px;
+	background: #0b1220;
+	background-size: cover;
+	background-position: center;
+}
+.product-edit label {
+	font-size: 12px;
+	text-transform: uppercase;
+	color: #9ca3af;
+}
+.product-edit input[type="text"],
+.product-edit input[type="number"],
+.product-edit textarea {
+	width: 100%;
+	border-radius: 10px;
+	border: 1px solid #1f2937;
+	background: #0b1220;
+	color: #e5e7eb;
+	padding: 8px 10px;
+}
+.product-edit textarea { min-height: 90px; resize: vertical; }
+.actions {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 8px;
+}
+.actions button {
+	border: none;
+	padding: 8px 12px;
+	border-radius: 10px;
+	cursor: pointer;
+}
+.primary { background:#2563eb; color:white; }
+.ghost { background:#111827; color:#9ca3af; border:1px solid #1f2937; }
+.search-bar {
+	margin-bottom: 12px;
+	display: flex;
+	gap: 8px;
+	align-items: center;
+}
+.search-bar input { flex: 1; padding: 10px 12px; border-radius: 12px; border:1px solid #1f2937; background:#0b1220; color:#e5e7eb; }
+</style>
+{% endblock %}
+
+{% block content %}
+<header class="search-bar">
+	<h2 style="margin:0;">Мої товари</h2>
+	<form method="get" style="display:flex;gap:8px;flex:1;">
+		<input type="text" name="q" placeholder="Пошук за назвою, артикулом, брендом" value="{{ query }}">
+		<button class="primary" type="submit">Шукати</button>
+	</form>
+</header>
+
+{% if products.is_empty() %}
+	<p>Товари не знайдено. Запустіть парсинг або змініть фільтр.</p>
+{% else %}
+<div class="products-admin">
+	{% for p in products %}
+	<form class="product-edit" method="post" action="/shop/{{shop.id}}/products/{{p.article}}">
+		<header>
+			<div>
+				<div class="pill">{{ p.article }}</div>
+				<div class="pill">{{ p.brand }} • {{ p.model.0 }}</div>
+			</div>
+			{% match p.available %}
+				{% when rt_types::Availability::Available %}<span class="pill green">В наявності</span>
+				{% when rt_types::Availability::OnOrder %}<span class="pill yellow">Під замовлення</span>
+				{% when rt_types::Availability::NotAvailable %}<span class="pill">Немає</span>
+			{% endmatch %}
+		</header>
+		<div class="thumb" {% if let Some(img) = p.images.first() %}style="background-image:url('{{img}}')" {% endif %}></div>
+		<div>
+			<label>Назва</label>
+			<input type="text" name="title" value="{{ p.title }}">
+		</div>
+		<div>
+			<label>Опис (HTML дозволено)</label>
+			<textarea name="description">{{ p.description_text() }}</textarea>
+		</div>
+		<div>
+			<label>Ціна, грн</label>
+			<input type="number" min="0" step="1" name="price" value="{% if let Some(price) = p.price %}{{price}}{% endif %}">
+		</div>
+		<div>
+			<label>Фото (кома, посилання)</label>
+			<input type="text" name="images" value="{{ p.images_csv() }}">
+		</div>
+		<div>
+			<label>Доп продажі (артикули через кому)</label>
+			<input type="text" name="upsell" value="{{ p.upsell_text() }}">
+		</div>
+		<div class="actions">
+			<a class="ghost" href="/product/{{ p.slug() }}" target="_blank">Відкрити на сайті</a>
+			<button class="primary" type="submit">Зберегти</button>
+		</div>
+	</form>
+	{% endfor %}
+</div>
+{% endif %}
+{% endblock %}

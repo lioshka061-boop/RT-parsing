@@ -678,6 +678,7 @@ where
         url: Url(link.to_string()),
         last_visited: OffsetDateTime::now_utc(),
         images,
+        upsell: None,
     })
 }
 

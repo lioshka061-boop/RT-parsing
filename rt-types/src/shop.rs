@@ -366,6 +366,8 @@ impl FileFormat {
 pub struct ExportEntryLink {
     pub vendor_name: Option<String>,
     pub link: String,
+    #[serde(default = "bool_true")]
+    pub publish: bool,
     #[serde(flatten)]
     pub options: Option<ExportOptions>,
 }
@@ -417,6 +419,8 @@ pub struct ExportOptions {
     pub format_years: bool,
     #[serde(default = "bool_false")]
     pub add_vendor: bool,
+    #[serde(default = "bool_true")]
+    pub publish: bool,
     #[serde(default)]
     pub description: Option<DescriptionOptions>,
     #[serde(default)]
@@ -451,6 +455,10 @@ pub struct Discount {
 
 fn bool_false() -> bool {
     false
+}
+
+fn bool_true() -> bool {
+    true
 }
 
 fn default_update_rate() -> Duration {

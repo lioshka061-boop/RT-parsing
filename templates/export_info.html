@@ -281,6 +281,7 @@
 					{% if opts.adjust_price.is_some() %}<span class="pill">Цена × {{opts.adjust_price.unwrap()}}</span>{% endif %}
 					{% if opts.discount.is_some() %}<span class="pill">Скидка {{opts.discount.as_ref().unwrap().percent}}%</span>{% endif %}
 				{% endif %}
+				{% if l.publish %}<span class="pill pill-primary">Публиковать на сайт</span>{% else %}<span class="pill pill-ghost">Не публиковать</span>{% endif %}
 				<span class="pill pill-ghost">{{crate::control::parse_vendor(l.link)}}</span>
 			</div>
 		</summary>
@@ -297,6 +298,12 @@
 														"{{crate::control::parse_vendor(l.link)}} (сгенерировано автоматически)"
 														>
 					<div class="placeholder"></div>
+				</div>
+				<div class="group checkbox">
+					<label for="publish_{{link_hash}}">
+						<input id="publish_{{link_hash}}" type="checkbox" name="publish" {% if l.publish %}checked{% endif %}>
+						Публиковать товары этого поставщика на сайт
+					</label>
 				</div>
 				{% if let Some(opts) = l.options %}
 				{% include "all_features.html" %}
@@ -328,6 +335,12 @@
 				<label for="vendor_name">Название поставщика</label>
 				<input id="vendor_name" type="text" name="vendor_name">
 				<div class="placeholder"></div>
+			</div>
+			<div class="group checkbox">
+				<label for="publish_new">
+					<input id="publish_new" type="checkbox" name="publish" checked>
+					Публиковать товары этого поставщика на сайт
+				</label>
 			</div>
 			{% let opts = ExportOptions::default() -%}
 			{% include "all_features.html" %}

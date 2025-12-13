@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>{{ product.title }} | O&P Tuning</title>
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css">
+	<link rel="stylesheet" href="/static/landing/index.css">
+	<link rel="stylesheet" href="/static/landing/product.css">
+</head>
+<body class="product-page">
+	<header class="site-header lite">
+		<div class="brand">
+			<div class="logo-mark">O&P</div>
+			<div class="logo-text">
+				<div class="title">Tuning</div>
+				<div class="subtitle">performance studio</div>
+			</div>
+		</div>
+		<nav>
+			<a href="/">Каталог</a>
+			<a href="#details">Характеристики</a>
+			<a href="{{ product.url.0 }}" target="_blank">Джерело</a>
+		</nav>
+		<div class="actions">
+			<a class="ghost" href="/login"><i class="ri-shield-user-line"></i> Адмінка</a>
+		</div>
+	</header>
+
+	<main>
+		<section class="hero">
+			<div class="gallery">
+				<div class="main-image" id="mainImage" {% if let Some(img) = product.images.first() %}style="background-image: url('{{img}}');"{% endif %}></div>
+				<div class="thumbs">
+					{% if product.images.is_empty() %}
+						<div class="thumb placeholder">Фото немає</div>
+					{% else %}
+						{% for img in product.images %}
+						<button class="thumb" data-img="{{img}}" {% if loop.index0 == 0 %}aria-current="true"{% endif %} style="background-image: url('{{img}}');"></button>
+						{% endfor %}
+					{% endif %}
+				</div>
+			</div>
+			<div class="info">
+				<p class="eyebrow">{{ product.brand }}</p>
+				<h1>{{ product.title }}</h1>
+				<p class="meta">
+					{{ product.format_model().unwrap_or(product.model.0.clone()) }}
+					• Артикул: {{ product.article }}
+				</p>
+				<div class="badges">
+					{% match product.available %}
+						{% when rt_types::Availability::Available %}<span class="pill available">В наявності</span>
+						{% when rt_types::Availability::OnOrder %}<span class="pill on-order">Під замовлення</span>
+						{% when rt_types::Availability::NotAvailable %}<span class="pill not-available">Немає</span>
+					{% endmatch %}
+					{% if product.category.is_some() %}
+						<span class="pill pill-ghost">{{ product.category.as_ref().unwrap() }}</span>
+					{% endif %}
+				</div>
+				<div class="price-line">
+					{% if let Some(price) = product.price %}
+						<div class="price">{{ price }} грн</div>
+					{% else %}
+						<div class="price muted">Ціна уточнюється</div>
+					{% endif %}
+					<div class="cta">
+						<a class="primary" href="{{ product.url.0 }}" target="_blank">
+							Відкрити оригінал <i class="ri-arrow-right-up-line"></i>
+						</a>
+						<a class="ghost" href="/">← Назад до каталогу</a>
+					</div>
+				</div>
+				<div class="desc" id="details">
+					{% if product.description.is_some() %}
+						{{ product.description.as_ref().unwrap()|safe }}
+					{% else %}
+						<p>Опис для цього товару ще не додано. Ви можете переглянути деталі в оригінальному джерелі.</p>
+					{% endif %}
+				</div>
+				{% if product.upsell.is_some() %}
+				<div class="desc">
+					<p class="meta">Рекомендовано разом:</p>
+					<div class="badges">
+						{% for up in product.upsell.as_ref().unwrap().split(',') %}
+							<span class="pill pill-ghost">{{ up }}</span>
+						{% endfor %}
+					</div>
+				</div>
+				{% endif %}
+			</div>
+		</section>
+	</main>
+
+	<script>
+		document.querySelectorAll('.thumb[data-img]').forEach(btn => {
+			btn.addEventListener('click', () => {
+				document.querySelectorAll('.thumb').forEach(t => t.removeAttribute('aria-current'));
+				btn.setAttribute('aria-current', 'true');
+				const main = document.getElementById('mainImage');
+				main.style.backgroundImage = `url('${btn.dataset.img}')`;
+			});
+		});
+	</script>
+</body>
+</html>

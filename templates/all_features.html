@@ -22,6 +22,9 @@
 															 %} />
 	<label for="convert_to_uah_{{link_hash}}">Конвертировать в гривны</label>
 
+	<input id="publish_{{link_hash}}" type="checkbox" value="true" name="publish" {% if opts.publish %}checked{% endif %}/>
+	<label for="publish_{{link_hash}}">Публиковать на сайт</label>
+
 	<input id="format_years_{{link_hash}}" type="checkbox" name="format_years" {% if 
 											 opts.format_years %}checked{% 
 											 endif %} />

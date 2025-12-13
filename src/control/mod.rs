@@ -59,7 +59,10 @@ use typesafe_repository::GetIdentity;
 use typesafe_repository::IdentityOf;
 use uuid::Uuid;
 
+pub mod catalog;
 pub mod landing;
+pub mod product;
+pub mod site_api;
 
 pub type Response = Result<HttpResponse, ControllerError>;
 pub type ShopResponse = Result<HttpResponse, ShopControllerError>;
@@ -698,6 +701,171 @@ async fn parsing(
 }
 
 #[derive(Template)]
+#[template(path = "shop/products.html")]
+pub struct ShopProductsPage {
+    shop: Shop,
+    user: UserCredentials,
+    products: Vec<dt::product::Product>,
+    query: String,
+}
+
+#[derive(Deserialize)]
+pub struct ShopProductsQuery {
+    pub q: Option<String>,
+}
+
+#[get("/shop/{shop_id}/products")]
+async fn shop_products(
+    ShopAccess { shop, user }: ShopAccess,
+    params: Query<ShopProductsQuery>,
+    dt_repo: Data<Arc<dyn dt::product::ProductRepository + Send>>,
+) -> Response {
+    // Обмежуємо публікацію за постачальниками
+    let published_vendors: Vec<String> = shop
+        .export_entries
+        .iter()
+        .flat_map(|e| e.links.as_ref().into_iter().flatten())
+        .filter(|l| l.publish || l.options.as_ref().map(|o| o.publish).unwrap_or(true))
+        .map(|l| l.vendor_name())
+        .filter(|v| !v.is_empty())
+        .collect();
+    let allow_dt = shop.export_entries.iter().any(|e| {
+        e.dt_parsing
+            .as_ref()
+            .map(|o| o.options.publish)
+            .unwrap_or(false)
+            || e.maxton_parsing
+                .as_ref()
+                .map(|o| o.options.publish)
+                .unwrap_or(false)
+            || e.jgd_parsing
+                .as_ref()
+                .map(|o| o.options.publish)
+                .unwrap_or(false)
+            || e.pl_parsing
+                .as_ref()
+                .map(|o| o.options.publish)
+                .unwrap_or(false)
+            || e.skm_parsing
+                .as_ref()
+                .map(|o| o.options.publish)
+                .unwrap_or(false)
+            || e.dt_tt_parsing
+                .as_ref()
+                .map(|o| o.options.publish)
+                .unwrap_or(false)
+    });
+
+    let mut products = if allow_dt {
+        dt_repo
+            .select(&dt::product::AvailableSelector)
+            .await
+            .unwrap_or_default()
+    } else {
+        vec![]
+    };
+
+    if !published_vendors.is_empty() {
+        products = products
+            .into_iter()
+            .filter(|p| {
+                let title = p.title.to_lowercase();
+                let brand = p.brand.to_lowercase();
+                let model = p.model.0.to_lowercase();
+                published_vendors.iter().any(|v| {
+                    let v = v.to_lowercase();
+                    brand.contains(&v) || title.contains(&v) || model.contains(&v)
+                })
+            })
+            .collect();
+    }
+
+    if let Some(q) = params.q.as_ref().filter(|s| !s.trim().is_empty()) {
+        let q = q.to_lowercase();
+        products = products
+            .into_iter()
+            .filter(|p| {
+                p.title.to_lowercase().contains(&q)
+                    || p.brand.to_lowercase().contains(&q)
+                    || p.model.0.to_lowercase().contains(&q)
+                    || p.article.to_lowercase().contains(&q)
+            })
+            .collect();
+    }
+
+    products.sort_by_key(|p| p.last_visited);
+    products.reverse();
+    products.truncate(200);
+
+    render_template(ShopProductsPage {
+        shop,
+        user,
+        products,
+        query: params.q.clone().unwrap_or_default(),
+    })
+}
+
+#[derive(Deserialize)]
+pub struct ProductUpdateForm {
+    pub title: Option<String>,
+    pub description: Option<String>,
+    pub price: Option<usize>,
+    pub images: Option<String>,
+    pub upsell: Option<String>,
+}
+
+#[post("/shop/{shop_id}/products/{article}")]
+async fn shop_product_update(
+    ShopAccess { shop, .. }: ShopAccess,
+    article: Path<String>,
+    form: Form<ProductUpdateForm>,
+    dt_repo: Data<Arc<dyn dt::product::ProductRepository + Send>>,
+) -> Response {
+    let article = article.into_inner();
+    let form = form.into_inner();
+
+    let products = dt_repo.list().await?;
+    let mut product = products
+        .into_iter()
+        .find(|p| p.article.eq_ignore_ascii_case(&article))
+        .ok_or(ControllerError::NotFound)?;
+
+    if let Some(title) = form.title {
+        if !title.trim().is_empty() {
+            product.title = title.trim().to_string();
+        }
+    }
+    if let Some(desc) = form.description {
+        product.description = Some(desc);
+    }
+    if let Some(price) = form.price {
+        product.price = Some(price);
+    }
+    if let Some(images) = form.images {
+        let imgs = images
+            .split(',')
+            .map(|s| s.trim())
+            .filter(|s| !s.is_empty())
+            .map(str::to_string)
+            .collect::<Vec<_>>();
+        if !imgs.is_empty() {
+            product.images = imgs;
+        }
+    }
+    if let Some(upsell) = form.upsell {
+        let upsell = upsell.trim();
+        product.upsell = if upsell.is_empty() {
+            None
+        } else {
+            Some(upsell.to_string())
+        };
+    }
+
+    dt_repo.save(product).await?;
+    Ok(see_other(&format!("/shop/{}/products", shop.id)))
+}
+
+#[derive(Template)]
 #[template(path = "parsing_product_info.html")]
 pub struct ProductInfoPage {
     product: dt::product::Product,
@@ -977,6 +1145,8 @@ pub struct ExportEntryDto {
 pub struct ExportEntryLinkDto {
     pub vendor_name: Option<String>,
     pub link: Option<String>,
+    #[serde(default = "bool_true", deserialize_with = "deserialize_bool_form")]
+    pub publish: bool,
     #[serde(default, deserialize_with = "deserialize_bool_form")]
     pub add_title_prefix: bool,
     pub title_prefix: Option<String>,
@@ -1044,6 +1214,7 @@ impl TryInto<ExportEntryLink> for ExportEntryLinkDto {
                 .link
                 .clone()
                 .ok_or_else(|| anyhow!("Export entry must have a link"))?,
+            publish: self.publish,
             options: Some(self.into()),
         })
     }
@@ -1091,6 +1262,7 @@ impl Into<ExportOptions> for ExportEntryLinkDto {
                 .filter(|s| !s.trim().is_empty()),
             title_replacements: parse_replacements(self.title_replacements),
             only_available: self.only_available,
+            publish: self.publish,
             discount: self
                 .discount_duration
                 .zip(self.discount_percent)
@@ -1195,6 +1367,10 @@ where
             &["on", "off", "true", "false"],
         )),
     }
+}
+
+fn bool_true() -> bool {
+    true
 }
 
 pub fn deserialize_option_bool_form<'de, D>(deserializer: D) -> Result<Option<bool>, D::Error>

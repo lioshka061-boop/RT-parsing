@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block head %}
+<link rel="stylesheet" href="/static/landing/index.css" />
+<script defer src="/static/landing/app.js"></script>
+{% endblock %}
+{% block content %}
+<main class="page">
+	<section class="hero header-only">
+		<div class="hero-copy">
+			<p class="eyebrow">Пошук по каталогу</p>
+			<h1>Знайди свій стайлінг</h1>
+			<form class="search-form" method="get" action="/search">
+				<div class="search-input">
+					<i class="ri-search-line"></i>
+					<input type="text" name="q" value="{{ query }}" placeholder="Пошук: BMW, Maxton, спойлер..." />
+				</div>
+				<div class="filters">
+					<select name="cat">
+						<option value="">Усі категорії</option>
+						{% for c in categories %}
+							<option value="{{c.id}}" {% if c.selected %}selected{% endif %}>{{ c.name }}</option>
+						{% endfor %}
+					</select>
+					<button class="primary" type="submit"><i class="ri-search-line"></i>Шукати</button>
+				</div>
+			</form>
+		</div>
+	</section>
+
+	<section class="products">
+		<div class="section-head">
+			<div>
+				<p class="eyebrow">Результати</p>
+			<h2>{% if has_query %}Пошук: "{{ query }}"{% else %}Усі товари{% endif %}</h2>
+			</div>
+		</div>
+		<div class="product-grid">
+			{% if products.is_empty() %}
+				<div class="product-card">
+					<div class="thumb">
+						<span class="tag">0</span>
+					</div>
+					<div class="info">
+						<h4>Нічого не знайдено</h4>
+						<p class="meta">Спробуйте інший запит або категорію.</p>
+					</div>
+				</div>
+			{% else %}
+				{% for p in products.iter().take(30) %}
+				<a class="product-card" href="/product/{{ p.slug() }}">
+					<div class="thumb" {% if let Some(img) = p.images.first() %}style="background-image: url('{{img}}'); background-size: cover; background-position: center;"{% endif %}>
+						<span class="tag">{{ p.brand }}</span>
+					</div>
+					<div class="info">
+						<h4>{{ p.title }}</h4>
+						<p class="meta">{{ p.format_model().unwrap_or(p.model.0.clone()) }}</p>
+						<div class="price-row">
+							<span class="price">
+								{% if let Some(price) = p.price %}
+									{{ price }} грн
+								{% else %}
+									Ціна уточнюється
+								{% endif %}
+							</span>
+						</div>
+					</div>
+				</a>
+				{% endfor %}
+			{% endif %}
+		</div>
+	</section>
+</main>
+{% endblock %}

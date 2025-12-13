@@ -29,6 +29,7 @@ pub struct Product {
     pub url: Url,
     pub last_visited: OffsetDateTime,
     pub images: Vec<String>,
+    pub upsell: Option<String>,
 }
 
 impl Product {
@@ -57,6 +58,28 @@ impl Product {
         } else {
             Some(format!("{brand} {model}"))
         }
+    }
+
+    pub fn slug(&self) -> String {
+        let url = self.url.0.trim_matches('/');
+        let candidate = url.rsplit('/').next().unwrap_or(url);
+        if candidate.is_empty() {
+            self.article.clone()
+        } else {
+            candidate.to_string()
+        }
+    }
+
+    pub fn images_csv(&self) -> String {
+        self.images.join(", ")
+    }
+
+    pub fn description_text(&self) -> String {
+        self.description.clone().unwrap_or_default()
+    }
+
+    pub fn upsell_text(&self) -> String {
+        self.upsell.clone().unwrap_or_default()
     }
 }
 
@@ -104,10 +127,13 @@ impl SqliteProductRepository {
                     available INTEGER,
                     url TEXT,
                     last_visited INTEGER,
-                    images TEXT
+                    images TEXT,
+                    upsell TEXT
                 )",
                 [],
             )?;
+            // Можемо додати колонку, якщо база створена раніше
+            let _ = conn.execute("ALTER TABLE product ADD COLUMN upsell TEXT", []);
             conn.commit()?;
             Ok(())
         })
@@ -128,10 +154,10 @@ impl Save<Product> for SqliteProductRepository {
                 let img = p.img_as_str();
                 conn.execute(
                     "INSERT INTO product 
-                    (title, description, price, article, model, category, available, url, last_visited, brand, images) 
-                    VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11)
+                    (title, description, price, article, model, category, available, url, last_visited, brand, images, upsell) 
+                    VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12)
                     ON CONFLICT(article)
-                    DO UPDATE SET title=?1, description=?2, price=?3, model=?5, category=?6, available=?7, url=?8, last_visited=?9, brand=?10, images = ?11",
+                    DO UPDATE SET title=?1, description=?2, price=?3, model=?5, category=?6, available=?7, url=?8, last_visited=?9, brand=?10, images = ?11, upsell = ?12",
                     params![
                         p.title,
                         p.description,
@@ -144,6 +170,7 @@ impl Save<Product> for SqliteProductRepository {
                         p.last_visited,
                         p.brand,
                         img,
+                        p.upsell,
                     ],
                 )?;
                 Ok(())
@@ -162,7 +189,7 @@ impl Get<Product> for SqliteProductRepository {
             .call(move |conn| {
                 let p = {
                     let mut stmt = conn.prepare(
-                        "SELECT title, description, price, article, model, category, available, url, last_visited, brand, images
+                        "SELECT title, description, price, article, model, category, available, url, last_visited, brand, images, upsell
                         FROM product WHERE article = ?1",
                     )?;
                     let p = stmt
@@ -179,6 +206,7 @@ impl Get<Product> for SqliteProductRepository {
                                 last_visited: row.get(8)?,
                                 brand: row.get(9)?,
                                 images: row.get::<_, Option<String>>(10)?.map(Product::img_from_str).unwrap_or_default(),
+                                upsell: row.get(11).unwrap_or(None),
                             })
                         })?
                         .collect::<Result<Vec<_>, _>>();
@@ -198,7 +226,7 @@ impl GetBy<Product, Url> for SqliteProductRepository {
             .conn
             .call(move |conn| {
                 let mut stmt = conn.prepare(
-                    "SELECT title, description, price, article, model, category, available, url, last_visited, brand, images
+                    "SELECT title, description, price, article, model, category, available, url, last_visited, brand, images, upsell
                     FROM product WHERE url = ?1",
                 )?;
                 let mut p = stmt
@@ -215,6 +243,7 @@ impl GetBy<Product, Url> for SqliteProductRepository {
                             last_visited: row.get(8)?,
                             brand: row.get(9)?,
                             images: row.get::<_, Option<String>>(10)?.map(Product::img_from_str).unwrap_or_default(),
+                            upsell: row.get(11).unwrap_or(None),
                         })
                     })?
                     .collect::<Result<Vec<_>, _>>()?;
@@ -232,7 +261,7 @@ impl List<Product> for SqliteProductRepository {
             .call(move |conn| {
                 let p = {
                     let mut stmt = conn.prepare(
-                        "SELECT title, description, price, article, model, category, available, url, last_visited, brand, images
+                        "SELECT title, description, price, article, model, category, available, url, last_visited, brand, images, upsell
                         FROM product",
                     )?;
                     let p = stmt
@@ -249,6 +278,7 @@ impl List<Product> for SqliteProductRepository {
                                 last_visited: row.get(8)?,
                                 brand: row.get(9)?,
                                 images: row.get::<_, Option<String>>(10)?.map(Product::img_from_str).unwrap_or_default(),
+                                upsell: row.get(11).unwrap_or(None),
                             })
                         })?
                         .collect::<Result<Vec<_>, _>>()?;
@@ -267,7 +297,7 @@ impl ListBy<Product, Model> for SqliteProductRepository {
         Ok(self.conn.call(move |conn| {
             let p = {
                 let mut stmt = conn.prepare(
-                    "SELECT title, description, price, article, model, category, available, url, last_visited, brand, images
+                    "SELECT title, description, price, article, model, category, available, url, last_visited, brand, images, upsell
                     FROM product WHERE model = ?1",
                 )?;
                 let p = stmt
@@ -284,6 +314,7 @@ impl ListBy<Product, Model> for SqliteProductRepository {
                             last_visited: row.get(8)?,
                             brand: row.get(9)?,
                             images: row.get::<_, Option<String>>(10)?.map(Product::img_from_str).unwrap_or_default(),
+                            upsell: row.get(11).unwrap_or(None),
                         })
                     })?
                     .collect::<Result<Vec<_>, _>>()?;
@@ -301,7 +332,7 @@ impl Select<Product, AvailableSelector> for SqliteProductRepository {
         Ok(self.conn.call(move |conn| {
             let p = {
                 let mut stmt = conn.prepare(
-                    "SELECT title, description, price, article, model, category, available, url, last_visited, brand, images 
+                    "SELECT title, description, price, article, model, category, available, url, last_visited, brand, images, upsell 
                     FROM product WHERE available > 0",
                 )?;
                 let p = stmt
@@ -318,6 +349,7 @@ impl Select<Product, AvailableSelector> for SqliteProductRepository {
                             last_visited: row.get(8)?,
                             brand: row.get(9)?,
                             images: row.get::<_, Option<String>>(10)?.map(Product::img_from_str).unwrap_or_default(),
+                            upsell: row.get(11).unwrap_or(None),
                         })
                     })?
                     .collect::<Result<Vec<_>, _>>()?;
@@ -338,7 +370,7 @@ impl Select<Product, FromDateAvailableSelector> for SqliteProductRepository {
         Ok(self.conn.call(move |conn| {
             let p = {
                 let mut stmt = conn.prepare(
-                    "SELECT title, description, price, article, model, category, available, url, last_visited, brand, images 
+                    "SELECT title, description, price, article, model, category, available, url, last_visited, brand, images, upsell 
                     FROM product WHERE last_visited >= ?1 AND available > 0",
                 )?;
                 let p = stmt
@@ -355,6 +387,7 @@ impl Select<Product, FromDateAvailableSelector> for SqliteProductRepository {
                             last_visited: row.get(8)?,
                             brand: row.get(9)?,
                             images: row.get::<_, Option<String>>(10)?.map(Product::img_from_str).unwrap_or_default(),
+                            upsell: row.get(11).unwrap_or(None),
                         })
                     })?
                     .collect::<Result<Vec<_>, _>>()?;
@@ -392,6 +425,9 @@ impl TryInto<rt_types::product::Product> for Product {
         let mut params = HashMap::new();
         params.insert("Марка".to_string(), self.brand.clone());
         params.insert("Модель".to_string(), self.model.clone().0);
+        if let Some(ref upsell) = self.upsell {
+            params.insert("Upsell".to_string(), upsell.clone());
+        }
         Ok(rt_types::product::Product {
             id: rt_types::product::generate_id(&self.article, &vendor, &keywords),
             title: self.title,
