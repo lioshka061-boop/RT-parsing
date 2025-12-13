@@ -3,7 +3,7 @@
 use crate::{Model, Url};
 use async_trait::async_trait;
 use rt_types::Availability;
-use rusqlite::{params, Transaction, TransactionBehavior};
+use rusqlite::{Transaction, TransactionBehavior};
 use std::collections::HashMap;
 use time::{Duration, OffsetDateTime};
 use tokio_rusqlite::Connection;

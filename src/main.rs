@@ -113,18 +113,35 @@ async fn main() -> Result<(), anyhow::Error> {
     // DB config with sensible defaults for local/dev runs
     let postgres_password: String = std::env::var("POSTGRES_PASSWORD")
         .ok()
-        .filter(|v| !v.trim().is_empty())
+        .map(|v| v.trim().to_string())
+        .filter(|v| !v.is_empty())
         .unwrap_or_else(|| "postgres".to_string());
     let postgres_username: String = std::env::var("POSTGRES_USER")
         .ok()
-        .filter(|v| !v.trim().is_empty())
+        .map(|v| v.trim().to_string())
+        .filter(|v| !v.is_empty())
         .unwrap_or_else(|| "postgres".to_string());
     let postgres_host: String = std::env::var("POSTGRES_HOST")
         .ok()
-        .filter(|v| !v.trim().is_empty())
+        .map(|v| v.trim().to_string())
+        .filter(|v| !v.is_empty())
         .unwrap_or_else(|| "localhost".to_string());
+    let postgres_db: String = std::env::var("POSTGRES_DB")
+        .ok()
+        .map(|v| v.trim().to_string())
+        .filter(|v| !v.is_empty())
+        .unwrap_or_else(|| postgres_username.clone());
+
+    log::info!(
+        "Connecting to postgres host={} user={} db={}",
+        postgres_host,
+        postgres_username,
+        postgres_db
+    );
     let (mut client, connection) = tokio_postgres::connect(
-        &format!("host={postgres_host} user={postgres_username} dbname={postgres_username} password={postgres_password}"),
+        &format!(
+            "host={postgres_host} user={postgres_username} dbname={postgres_db} password={postgres_password}"
+        ),
         tokio_postgres::NoTls,
     )
     .await.context("Unable to connect to postgres db")?;
