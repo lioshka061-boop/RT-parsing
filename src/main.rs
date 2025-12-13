@@ -110,12 +110,13 @@ async fn main() -> Result<(), anyhow::Error> {
     }
     let currency_service = currency_service::CurrencyService::new().start();
 
+    // DB config with sensible defaults for local/dev runs
     let postgres_password: String =
-        envmnt::get_parse("POSTGRES_PASSWORD").context("POSTGRES_PASSWORD not set")?;
+        std::env::var("POSTGRES_PASSWORD").unwrap_or_else(|_| "postgres".to_string());
     let postgres_username: String =
-        envmnt::get_parse("POSTGRES_USER").context("POSTGRES_USER not set")?;
+        std::env::var("POSTGRES_USER").unwrap_or_else(|_| "postgres".to_string());
     let postgres_host: String =
-        envmnt::get_parse("POSTGRES_HOST").context("POSTGRES_USER not set")?;
+        std::env::var("POSTGRES_HOST").unwrap_or_else(|_| "localhost".to_string());
     let (mut client, connection) = tokio_postgres::connect(
         &format!("host={postgres_host} user={postgres_username} dbname={postgres_username} password={postgres_password}"),
         tokio_postgres::NoTls,
