@@ -4,6 +4,8 @@ services:
     image: rt-parsing:latest
     working_dir: /app
     command: "/app/rt-parsing"
+    environment:
+      POSTGRES_HOST: db
     ports:
       - "8080:8080"
     depends_on:
