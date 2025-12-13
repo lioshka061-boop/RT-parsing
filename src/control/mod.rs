@@ -709,6 +709,13 @@ pub struct ShopProductsPage {
     query: String,
 }
 
+#[derive(Template)]
+#[template(path = "shop/product_new.html")]
+pub struct ShopProductNewPage {
+    shop: Shop,
+    user: UserCredentials,
+}
+
 #[derive(Deserialize)]
 pub struct ShopProductsQuery {
     pub q: Option<String>,
@@ -805,11 +812,30 @@ async fn shop_products(
     })
 }
 
+#[get("/shop/{shop_id}/products/new")]
+async fn shop_product_new_page(ShopAccess { shop, user }: ShopAccess) -> Response {
+    render_template(ShopProductNewPage { shop, user })
+}
+
 #[derive(Deserialize)]
 pub struct ProductUpdateForm {
     pub title: Option<String>,
     pub description: Option<String>,
     pub price: Option<usize>,
+    pub images: Option<String>,
+    pub upsell: Option<String>,
+}
+
+#[derive(Deserialize)]
+pub struct ProductCreateForm {
+    pub title: String,
+    pub description: Option<String>,
+    pub price: Option<usize>,
+    pub article: Option<String>,
+    pub brand: String,
+    pub model: String,
+    pub category: Option<String>,
+    pub available: Option<String>,
     pub images: Option<String>,
     pub upsell: Option<String>,
 }
@@ -861,6 +887,66 @@ async fn shop_product_update(
         };
     }
 
+    dt_repo.save(product).await?;
+    Ok(see_other(&format!("/shop/{}/products", shop.id)))
+}
+
+#[post("/shop/{shop_id}/products/new")]
+async fn shop_product_create(
+    ShopAccess { shop, .. }: ShopAccess,
+    form: Form<ProductCreateForm>,
+    dt_repo: Data<Arc<dyn dt::product::ProductRepository + Send>>,
+) -> Response {
+    use crate::dt::product::Product;
+    use crate::Model;
+    use crate::Url as DtUrl;
+    let form = form.into_inner();
+    let article = form
+        .article
+        .filter(|s| !s.trim().is_empty())
+        .unwrap_or_else(|| uuid::Uuid::new_v4().to_string());
+    let mut slug = form.title.clone();
+    slug.make_ascii_lowercase();
+    let re = Regex::new(r"[^a-z0-9]+").unwrap();
+    slug = re.replace_all(&slug, "-").trim_matches('-').to_string();
+    if slug.is_empty() {
+        slug = article.clone();
+    }
+    let url = DtUrl(format!("/manual/op-tuning/{}.html", slug));
+    let images = form
+        .images
+        .unwrap_or_default()
+        .split(',')
+        .map(|s| s.trim())
+        .filter(|s| !s.is_empty())
+        .map(str::to_string)
+        .collect::<Vec<_>>();
+    let available = match form.available.as_deref() {
+        Some("on_order") => Availability::OnOrder,
+        Some("not_available") => Availability::NotAvailable,
+        _ => Availability::Available,
+    };
+    let product = Product {
+        title: form.title,
+        description: form.description,
+        price: form.price,
+        article,
+        brand: form.brand,
+        model: Model(form.model),
+        category: form.category,
+        available,
+        url,
+        last_visited: OffsetDateTime::now_utc(),
+        images,
+        upsell: form.upsell.and_then(|u| {
+            let u = u.trim();
+            if u.is_empty() {
+                None
+            } else {
+                Some(u.to_string())
+            }
+        }),
+    };
     dt_repo.save(product).await?;
     Ok(see_other(&format!("/shop/{}/products", shop.id)))
 }

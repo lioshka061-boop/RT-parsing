@@ -86,6 +86,7 @@
 		<input type="text" name="q" placeholder="Пошук за назвою, артикулом, брендом" value="{{ query }}">
 		<button class="primary" type="submit">Шукати</button>
 	</form>
+	<a class="primary" style="text-decoration:none; padding:10px 14px; border-radius:12px;" href="/shop/{{shop.id}}/products/new">+ Створити товар</a>
 </header>
 
 {% if products.is_empty() %}

@@ -1,0 +1,92 @@
+{% extends "shop/base.html" %}
+{% block head %}
+{% let page = "products" %}
+<style>
+.product-new {
+	background: #111827;
+	border: 1px solid #1f2937;
+	border-radius: 16px;
+	padding: 16px;
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 12px 18px;
+}
+.product-new label { font-size:12px; text-transform:uppercase; color:#9ca3af; }
+.product-new input, .product-new textarea, .product-new select {
+	width: 100%;
+	border-radius: 12px;
+	border:1px solid #1f2937;
+	background:#0b1220;
+	color:#e5e7eb;
+	padding:10px 12px;
+}
+.product-new textarea { min-height:140px; resize:vertical; }
+.actions { grid-column: 1 / -1; display:flex; justify-content: space-between; align-items:center; }
+.primary { background:#2563eb; color:white; border:none; padding:10px 14px; border-radius:12px; cursor:pointer; }
+.ghost { color:#9ca3af; }
+@media(max-width: 960px){
+	.product-new { grid-template-columns: 1fr; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<header class="search-bar">
+	<h2 style="margin:0;">Новий товар (OP Tuning)</h2>
+	<a class="ghost" href="/shop/{{shop.id}}/products" style="text-decoration:none; padding:8px 12px; border:1px solid #1f2937; border-radius:10px;">← Повернутись</a>
+</header>
+
+<form class="product-new" method="post" action="/shop/{{shop.id}}/products/new">
+	<div style="grid-column:1/-1; display:flex; gap:8px; align-items:center;">
+		<span class="pill" style="background:#0b1220; border:1px solid #1f2937; padding:6px 10px; border-radius:10px;">Публікується на сайт і пром</span>
+	</div>
+	<div>
+		<label>Назва *</label>
+		<input type="text" name="title" required>
+	</div>
+	<div>
+		<label>Артикул (порожньо — генеруємо)</label>
+		<input type="text" name="article" placeholder="N2-43L*">
+	</div>
+	<div>
+		<label>Бренд *</label>
+		<input type="text" name="brand" required>
+	</div>
+	<div>
+		<label>Модель *</label>
+		<input type="text" name="model" required>
+	</div>
+	<div>
+		<label>Категорія</label>
+		<input type="text" name="category" placeholder="Спойлери / Пороги">
+	</div>
+	<div>
+		<label>Статус</label>
+		<select name="available">
+			<option value="available">В наявності</option>
+			<option value="on_order">Під замовлення</option>
+			<option value="not_available">Немає</option>
+		</select>
+	</div>
+	<div>
+		<label>Ціна, грн</label>
+		<input type="number" min="0" step="1" name="price">
+	</div>
+	<div>
+		<label>Фото (кома, посилання)</label>
+		<input type="text" name="images" placeholder="https://...">
+	</div>
+	<div style="grid-column:1/-1;">
+		<label>Опис (HTML дозволено)</label>
+		<textarea name="description"></textarea>
+	</div>
+	<div style="grid-column:1/-1;">
+		<label>Доп продажі (артикули через кому)</label>
+		<input type="text" name="upsell" placeholder="art1, art2">
+	</div>
+	<div class="actions">
+		<span class="ghost">Після збереження товар з'явиться у списку товарів та на сайті</span>
+		<button class="primary" type="submit">Створити</button>
+	</div>
+</form>
+{% endblock %}

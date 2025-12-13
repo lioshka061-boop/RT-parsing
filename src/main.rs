@@ -394,6 +394,7 @@ async fn main() -> Result<(), anyhow::Error> {
             .service(tt::controllers::import_translation_file)
             .service(control::shop_products)
             .service(control::shop_product_update)
+            .service(control::shop_product_create)
             .service(control::export_status_json)
             .service(control::index)
             .service(control::landing::index)
@@ -401,6 +402,7 @@ async fn main() -> Result<(), anyhow::Error> {
             .service(control::site_api::get_product)
             .service(control::catalog::search)
             .service(control::product::view)
+            .service(control::shop_product_new_page)
             .default_service(
                 actix_web::web::route()
                     .guard(guard::Not(guard::Get()))
