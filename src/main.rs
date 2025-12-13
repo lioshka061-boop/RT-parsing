@@ -121,11 +121,16 @@ async fn main() -> Result<(), anyhow::Error> {
         .map(|v| v.trim().to_string())
         .filter(|v| !v.is_empty())
         .unwrap_or_else(|| "postgres".to_string());
-    let postgres_host: String = std::env::var("POSTGRES_HOST")
+    let mut postgres_host: String = std::env::var("POSTGRES_HOST")
         .ok()
         .map(|v| v.trim().to_string())
         .filter(|v| !v.is_empty())
         .unwrap_or_else(|| "localhost".to_string());
+    // If запускаємо поза Docker і хост == "db", підставимо локалку.
+    if postgres_host == "db" && !std::path::Path::new("/.dockerenv").exists() {
+        log::warn!("POSTGRES_HOST=db поза Docker, fallback на 127.0.0.1");
+        postgres_host = "127.0.0.1".to_string();
+    }
     let postgres_db: String = std::env::var("POSTGRES_DB")
         .ok()
         .map(|v| v.trim().to_string())
