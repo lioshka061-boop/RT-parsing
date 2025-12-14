@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block head %}
+{% let page = "dt_products" %}
+<link rel="stylesheet" href="/static/menu.css" />
+{% endblock %}
+
+{% block title %}DT товари{% endblock %}
+
+{% block content %}
+<h1>DT товари (design-tuning)</h1>
+
+<form method="get" style="margin: 12px 0; display:flex; gap:10px; align-items:center;">
+    <label>Показати, якщо не обходились більше ніж (днів):
+        <input type="number" name="stale_days" min="1" step="1" value="{% if let Some(d) = stale_days %}{{ d }}{% endif %}" style="width:90px;">
+    </label>
+    <button type="submit" class="button">Фільтрувати</button>
+    <a href="/control_panel/dt/products" class="button" style="text-decoration:none;">Скинути</a>
+</form>
+
+<div style="overflow:auto; border:1px solid var(--border); border-radius:12px;">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Артикул</th>
+                <th>Назва</th>
+                <th>Ціна</th>
+                <th>Наявність</th>
+                <th>Останній обхід</th>
+                <th>Посилання</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for p in products %}
+            <tr>
+                <td><code>{{ p.article }}</code></td>
+                <td>{{ p.title }}</td>
+                <td>
+                    {% if let Some(price) = p.price %}
+                        {{ price }} UAH
+                    {% else %}
+                        —
+                    {% endif %}
+                </td>
+                <td>{{ p.available }}</td>
+                <td>{{ p.last_visited }}</td>
+                <td>
+                    {% if p.url.starts_with("http") %}
+                        <a href="{{ p.url }}" target="_blank">Відкрити</a>
+                    {% else %}
+                        <a href="https://design-tuning.com{{ p.url }}" target="_blank">Відкрити</a>
+                    {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% if products.is_empty() %}
+    <p>Товарів не знайдено.</p>
+{% endif %}
+
+{% endblock %}
